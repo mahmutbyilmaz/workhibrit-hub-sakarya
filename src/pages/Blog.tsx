@@ -1,0 +1,51 @@
+import { Link } from "react-router-dom";
+import { Calendar } from "lucide-react";
+import Layout from "@/components/Layout";
+import SEOHead from "@/components/SEOHead";
+import CTASection from "@/components/CTASection";
+import { Card, CardContent } from "@/components/ui/card";
+import { blogPosts } from "@/data/business";
+
+const Blog = () => (
+  <Layout>
+    <SEOHead
+      title="Blog | Workhibrit Sakarya - Sanal Ofis ve Coworking Bilgileri"
+      description="Sanal ofis, coworking ve ofis çözümleri hakkında güncel bilgiler. Workhibrit blog yazıları."
+      keywords="sanal ofis blog, coworking blog, ofis çözümleri"
+      canonical="https://sakaryasanalofis.com/blog"
+    />
+
+    <section className="bg-primary py-16 text-primary-foreground">
+      <div className="container text-center">
+        <h1 className="font-display text-4xl font-extrabold">Blog</h1>
+        <p className="mt-4 text-lg text-primary-foreground/80">Sanal ofis ve coworking dünyasından güncel bilgiler.</p>
+      </div>
+    </section>
+
+    <section className="py-16">
+      <div className="container">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {blogPosts.map((post) => (
+            <Link key={post.slug} to={`/blog/${post.slug}`}>
+              <Card className="group h-full transition-shadow hover:shadow-lg">
+                <CardContent className="p-6">
+                  <span className="inline-block rounded bg-primary/10 px-2 py-1 text-xs font-medium text-primary">{post.category}</span>
+                  <h2 className="mt-3 font-display text-lg font-bold group-hover:text-primary">{post.title}</h2>
+                  <p className="mt-2 text-sm text-muted-foreground line-clamp-3">{post.excerpt}</p>
+                  <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
+                    <Calendar className="h-3 w-3" />
+                    {new Date(post.date).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })}
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <CTASection />
+  </Layout>
+);
+
+export default Blog;
