@@ -1,30 +1,31 @@
 
-# Harita Sorunu Cozumu
 
-## Sorun
-Ana sayfa (`Index.tsx`) harita icin veritabanindaki ayarlari degil, kodda sabit yazilmis eski Google Maps linkini kullaniyor. Ayrica veritabaninda `maps_embed` anahtari bulunmuyor, bu da admin panelinden yapilan guncellemenin kaydedilmedigini gosteriyor.
+# Harita "Baglanti Reddedildi" Sorunu Cozumu
 
-## Cozum
+## Sorunun Sebebi
+Veritabanindaki `maps_embed` alaninda normal bir Google Maps linki kayitli:
+`https://www.google.com/maps/place/Ofisada+Plaza/@40.777733,...`
 
-### 1. Ana sayfadaki haritayi dinamik hale getir
-`src/pages/Index.tsx` dosyasinda harita bolumu su anda sabit `business.mapsEmbed` degerini kullaniyor. Bunu `useBusinessData` hook'undan veya dogrudan veritabanindan cekilecek sekilde guncelleyecegiz.
+Google, bu tur linklerin iframe icinde gosterilmesine izin vermiyor. iframe icin ozel **embed** formati gerekiyor:
+`https://www.google.com/maps/embed?pb=...`
 
-### 2. useBusinessData hook'una harita verileri ekle
-`src/hooks/useBusinessData.ts` dosyasina `mapsEmbed` ve `mapsLink` alanlari eklenecek, boylece tum sayfalarda veritabanindan gelen deger oncelikli olacak.
+## Cozum Yaklasimi
+Kod tarafinda bir donusturucu ekleyecegiz. Boylece admin panelinden herhangi bir Google Maps linki girildiginde, sistem bunu otomatik olarak embed formatina cevirecek. Ayrica fallback olarak place ID uzerinden embed URL olusturulacak.
 
-### 3. Admin panelinde kayit kontrolu
-Admin SEO sayfasinda `maps_embed` ve `maps_link` alanlari zaten tanimli. Kullanicinin bu alanlari admin panelinden tekrar kaydetmesi gerekebilir.
+### Degisiklikler
 
-## Teknik Detaylar
+**Dosya: `src/pages/Index.tsx`**
+- Harita iframe'ine verilen URL'yi render etmeden once kontrol eden bir yardimci fonksiyon eklenecek
+- Eger URL zaten embed formatindaysa (`/maps/embed` iceriyorsa) oldugu gibi kullanilacak
+- Eger standart Google Maps linki ise (`/maps/place/` iceriyorsa), koordinatlar cikarilarak embed URL'sine donusturulecek
+- Donusum yapilamazsa, statik varsayilan embed URL'si kullanilacak
 
-**Dosya 1: `src/hooks/useBusinessData.ts`**
-- `mapsEmbed` alani eklenecek: `settings?.maps_embed || business.mapsEmbed`
-- `mapsLink` alani eklenecek: `settings?.maps_link || business.mapsLink`
+### Teknik Detay
+Mevcut URL'den koordinatlar (`@40.777733,30.4021291`) cikarilip soyle bir embed URL'sine donusturulecek:
+`https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d1500!2d30.4021291!3d40.777733!...`
 
-**Dosya 2: `src/pages/Index.tsx`**
-- `useBusinessData()` hook'undan `mapsEmbed` alinacak
-- Harita iframe'indeki `src={business.mapsEmbed}` ifadesi `src={mapsEmbed}` olarak degistirilecek
+Bu sayede admin panelinden hangi formatta link girilirse girilsin harita dogru calisacak.
 
 ## Degisecek Dosyalar
-1. `src/hooks/useBusinessData.ts`
-2. `src/pages/Index.tsx`
+1. `src/pages/Index.tsx` - URL donusturucu fonksiyon ve harita bolumu guncellemesi
+
