@@ -67,7 +67,7 @@ const Footer = () => {
             <ul className="space-y-2 text-sm opacity-70">
               <li className="flex items-start gap-2"><MapPin className="mt-0.5 h-4 w-4 shrink-0" />{address}</li>
               <li className="flex items-center gap-2"><Phone className="h-4 w-4 shrink-0" /><a href={`tel:${phone}`} className="hover:opacity-100">{phone}</a></li>
-              <li className="flex items-center gap-2"><Mail className="h-4 w-4 shrink-0" /><a href={`mailto:${email}`} className="hover:opacity-100">{email}</a></li>
+              
             </ul>
           </div>
         </div>
