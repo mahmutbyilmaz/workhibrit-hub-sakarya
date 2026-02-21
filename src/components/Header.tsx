@@ -17,15 +17,19 @@ const navLinks = [
 
 const Header = () => {
   const [open, setOpen] = useState(false);
-  const { phone, whatsapp } = useBusinessData();
+  const { phone, whatsapp, logoUrl } = useBusinessData();
 
   return (
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <span className="font-display text-2xl font-extrabold tracking-tight text-primary">
-            Work<span className="text-accent">hibrit</span>
-          </span>
+          {logoUrl ? (
+            <img src={logoUrl} alt="Workhibrit" className="h-10 w-auto max-w-[180px] object-contain" />
+          ) : (
+            <span className="font-display text-2xl font-extrabold tracking-tight text-primary">
+              Work<span className="text-accent">hibrit</span>
+            </span>
+          )}
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
