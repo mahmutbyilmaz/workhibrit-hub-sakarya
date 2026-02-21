@@ -7,7 +7,7 @@ import Layout from "@/components/Layout";
 import SEOHead from "@/components/SEOHead";
 import FAQSection from "@/components/FAQSection";
 import CTASection from "@/components/CTASection";
-import { business, services, testimonials, homepageFAQs } from "@/data/business";
+import { business, services as staticServices, testimonials as staticTestimonials, homepageFAQs } from "@/data/business";
 import { supabase } from "@/integrations/supabase/client";
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -17,7 +17,28 @@ const iconMap: Record<string, React.ReactNode> = {
   DoorOpen: <DoorOpen className="h-8 w-8" />,
 };
 
+type Service = { id: string; title: string; slug: string; description: string; icon: string; price: string; period: string };
+type Testimonial = { name: string; company: string; text: string; rating: number };
+
 const Index = () => {
+  // Fetch all homepage content blocks
+  const { data: contentBlocks } = useQuery({
+    queryKey: ["homepage_content"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("page_content")
+        .select("block_type, content")
+        .eq("page_slug", "homepage")
+        .in("block_type", ["services", "testimonials", "pricing"])
+        .order("sort_order");
+      if (error) throw error;
+      const map: Record<string, any> = {};
+      data?.forEach((b) => (map[b.block_type] = b.content));
+      return map;
+    },
+    staleTime: 1000 * 60 * 2,
+  });
+
   // Fetch dynamic FAQs assigned to homepage
   const { data: dbFaqs } = useQuery({
     queryKey: ["homepage_faqs"],
@@ -32,7 +53,12 @@ const Index = () => {
     },
   });
 
-  // Use DB FAQs if available, fallback to static
+  const services: Service[] = (contentBlocks?.services && Array.isArray(contentBlocks.services))
+    ? contentBlocks.services : staticServices;
+  const testimonials: Testimonial[] = (contentBlocks?.testimonials && Array.isArray(contentBlocks.testimonials))
+    ? contentBlocks.testimonials : staticTestimonials;
+  const pricingRows: string[][] = (contentBlocks?.pricing && Array.isArray(contentBlocks.pricing))
+    ? contentBlocks.pricing : [];
   const displayFaqs = dbFaqs && dbFaqs.length > 0 ? dbFaqs : homepageFAQs;
 
   return (
@@ -109,39 +135,33 @@ const Index = () => {
       </section>
 
       {/* Pricing table */}
-      <section className="bg-secondary py-16">
-        <div className="container">
-          <h2 className="mb-8 text-center font-display text-3xl font-bold">Fiyat Karşılaştırması</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[600px] text-sm">
-              <thead>
-                <tr className="border-b text-left">
-                  <th className="p-4 font-display font-bold">Özellik</th>
-                  <th className="p-4 font-display font-bold text-center">Sanal Ofis</th>
-                  <th className="p-4 font-display font-bold text-center">Coworking</th>
-                  <th className="p-4 font-display font-bold text-center">Hazır Ofis</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  ["İş Adresi", "✓", "✓", "✓"],
-                  ["Posta Yönetimi", "✓", "✓", "✓"],
-                  ["Çalışma Alanı", "—", "✓", "✓"],
-                  ["Özel Ofis", "—", "—", "✓"],
-                  ["Toplantı Odası", "Ek ücret", "2 saat/ay", "5 saat/ay"],
-                  ["Başlangıç Fiyat", "₺750/ay", "₺1.500/ay", "₺3.500/ay"],
-                ].map((row, i) => (
-                  <tr key={i} className="border-b">
-                    {row.map((cell, j) => (
-                      <td key={j} className={`p-4 ${j === 0 ? "font-medium" : "text-center"}`}>{cell}</td>
+      {pricingRows.length > 0 && (
+        <section className="bg-secondary py-16">
+          <div className="container">
+            <h2 className="mb-8 text-center font-display text-3xl font-bold">Fiyat Karşılaştırması</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[600px] text-sm">
+                <thead>
+                  <tr className="border-b text-left">
+                    {pricingRows[0]?.map((h, j) => (
+                      <th key={j} className={`p-4 font-display font-bold ${j > 0 ? "text-center" : ""}`}>{h}</th>
                     ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {pricingRows.slice(1).map((row, i) => (
+                    <tr key={i} className="border-b">
+                      {row.map((cell, j) => (
+                        <td key={j} className={`p-4 ${j === 0 ? "font-medium" : "text-center"}`}>{cell}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Testimonials */}
       <section className="py-16">
@@ -153,7 +173,7 @@ const Index = () => {
                 <CardContent className="p-6">
                   <div className="mb-3 flex">
                     {Array.from({ length: t.rating }).map((_, j) => (
-                      <Star key={j} className="h-4 w-4 fill-accent text-accent" />
+                      <Star key={j} className="h-4 w-4 fill-primary text-primary" />
                     ))}
                   </div>
                   <p className="text-sm text-muted-foreground">"{t.text}"</p>
@@ -168,7 +188,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* FAQ - Dynamic from DB */}
+      {/* FAQ */}
       <FAQSection faqs={displayFaqs} />
 
       {/* Map */}

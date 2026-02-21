@@ -1,11 +1,12 @@
 import { ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LayoutDashboard, FileText, HelpCircle, Image, Settings, LogOut, MessageSquare, Sliders } from "lucide-react";
+import { LayoutDashboard, FileText, HelpCircle, Image, Settings, LogOut, MessageSquare, Sliders, Layout } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 
 const sidebarLinks = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { label: "İçerik Yönetimi", href: "/admin/content", icon: Layout },
   { label: "Blog Yazıları", href: "/admin/blog", icon: FileText },
   { label: "SSS Yönetimi", href: "/admin/faq", icon: HelpCircle },
   { label: "Mesajlar", href: "/admin/messages", icon: MessageSquare },
