@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Phone, Mail, MapPin, Clock, Send } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
 import SEOHead from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,30 @@ const Iletisim = () => {
   const { toast } = useToast();
   const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { data: settings } = useQuery({
+    queryKey: ["seo_settings"],
+    queryFn: async () => {
+      const { data } = await supabase.from("seo_settings").select("key, value");
+      const map: Record<string, string> = {};
+      data?.forEach((row) => { map[row.key] = row.value; });
+      return map;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const phone = settings?.phone || business.phone;
+  const email = settings?.email || business.email;
+  const address = [
+    settings?.address_street || business.address.street,
+    settings?.address_district || business.address.district,
+    settings?.address_city || business.address.city,
+    settings?.address_zip || business.address.zip,
+  ].filter(Boolean).join(", ");
+  const weekdays = settings?.working_hours_weekdays || business.workingHours.weekdays;
+  const saturday = settings?.working_hours_saturday || business.workingHours.saturday;
+  const sunday = settings?.working_hours_sunday || business.workingHours.sunday;
+  const mapsEmbed = settings?.maps_embed || business.mapsEmbed;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,30 +112,30 @@ const Iletisim = () => {
                   <MapPin className="mt-1 h-5 w-5 shrink-0 text-primary" />
                   <div>
                     <h3 className="font-semibold">Adres</h3>
-                    <p className="text-sm text-muted-foreground">{business.fullAddress}</p>
+                    <p className="text-sm text-muted-foreground">{address}</p>
                   </div>
                 </div>
                 <div className="flex gap-4">
                   <Phone className="mt-1 h-5 w-5 shrink-0 text-primary" />
                   <div>
                     <h3 className="font-semibold">Telefon</h3>
-                    <a href={`tel:${business.phone}`} className="text-sm text-muted-foreground hover:text-primary">{business.phone}</a>
+                    <a href={`tel:${phone}`} className="text-sm text-muted-foreground hover:text-primary">{phone}</a>
                   </div>
                 </div>
                 <div className="flex gap-4">
                   <Mail className="mt-1 h-5 w-5 shrink-0 text-primary" />
                   <div>
                     <h3 className="font-semibold">E-posta</h3>
-                    <a href={`mailto:${business.email}`} className="text-sm text-muted-foreground hover:text-primary">{business.email}</a>
+                    <a href={`mailto:${email}`} className="text-sm text-muted-foreground hover:text-primary">{email}</a>
                   </div>
                 </div>
                 <div className="flex gap-4">
                   <Clock className="mt-1 h-5 w-5 shrink-0 text-primary" />
                   <div>
                     <h3 className="font-semibold">Çalışma Saatleri</h3>
-                    <p className="text-sm text-muted-foreground">Hafta içi: {business.workingHours.weekdays}</p>
-                    <p className="text-sm text-muted-foreground">Cumartesi: {business.workingHours.saturday}</p>
-                    <p className="text-sm text-muted-foreground">Pazar: {business.workingHours.sunday}</p>
+                    <p className="text-sm text-muted-foreground">Hafta içi: {weekdays}</p>
+                    <p className="text-sm text-muted-foreground">Cumartesi: {saturday}</p>
+                    <p className="text-sm text-muted-foreground">Pazar: {sunday}</p>
                   </div>
                 </div>
               </div>
@@ -118,7 +143,7 @@ const Iletisim = () => {
               {/* Map */}
               <div className="mt-8 overflow-hidden rounded-lg border">
                 <iframe
-                  src={business.mapsEmbed}
+                  src={mapsEmbed}
                   width="100%"
                   height="300"
                   style={{ border: 0 }}
