@@ -5,6 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Plus, Trash2 } from "lucide-react";
 import AdminLayout from "@/components/AdminLayout";
 import TipTapEditor from "@/components/TipTapEditor";
@@ -39,6 +44,7 @@ const AdminBlogEditor = () => {
   });
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [saving, setSaving] = useState(false);
+  const [showDraftDialog, setShowDraftDialog] = useState(false);
 
   useEffect(() => {
     if (!isNew && id) {
@@ -106,8 +112,9 @@ const AdminBlogEditor = () => {
     }
   };
 
-  const handleSave = async () => {
+  const doSave = async (statusOverride?: string) => {
     setSaving(true);
+    const finalStatus = statusOverride || form.status;
     const payload = {
       title: form.title,
       slug: form.slug,
@@ -117,7 +124,7 @@ const AdminBlogEditor = () => {
       meta_description: form.meta_description,
       keywords: form.keywords.split(",").map((k) => k.trim()).filter(Boolean),
       category: form.category,
-      status: form.status,
+      status: finalStatus,
       featured_image: form.featured_image,
       faqs: faqs as any,
       author_id: user?.id,
@@ -134,29 +141,72 @@ const AdminBlogEditor = () => {
     if (error) {
       toast({ title: "Hata", description: error.message, variant: "destructive" });
     } else {
+      if (statusOverride) setForm((prev) => ({ ...prev, status: statusOverride }));
       toast({ title: isNew ? "Yazı oluşturuldu" : "Yazı güncellendi" });
       navigate("/admin/blog");
     }
   };
 
+  const handleSave = () => {
+    if (isNew && form.status === "draft") {
+      setShowDraftDialog(true);
+      return;
+    }
+    doSave();
+  };
+
+  const toggleStatus = () => {
+    const newStatus = form.status === "published" ? "draft" : "published";
+    setForm((prev) => ({ ...prev, status: newStatus }));
+  };
+
   return (
     <AdminLayout>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="font-display text-2xl font-bold">{isNew ? "Yeni Blog Yazısı" : "Yazıyı Düzenle"}</h1>
-        <div className="flex gap-2">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <h1 className="font-display text-2xl font-bold">{isNew ? "Yeni Blog Yazısı" : "Yazıyı Düzenle"}</h1>
+          <Badge variant={form.status === "published" ? "default" : "secondary"} className="text-sm">
+            {form.status === "published" ? "Yayında" : "Taslak"}
+          </Badge>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
           {isNew && <AIBlogGenerator onGenerated={handleAIGenerated} />}
-          <Select value={form.status} onValueChange={(v) => handleChange("status", v)}>
-            <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="draft">Taslak</SelectItem>
-              <SelectItem value="published">Yayınla</SelectItem>
-            </SelectContent>
-          </Select>
+          <Button
+            variant={form.status === "draft" ? "default" : "outline"}
+            onClick={toggleStatus}
+            className={form.status === "draft"
+              ? "bg-green-600 hover:bg-green-700 text-white"
+              : "border-orange-500 text-orange-600 hover:bg-orange-50"
+            }
+          >
+            {form.status === "draft" ? "Yayınla" : "Taslağa Al"}
+          </Button>
           <Button onClick={handleSave} disabled={saving}>
             {saving ? "Kaydediliyor..." : "Kaydet"}
           </Button>
         </div>
       </div>
+
+      {/* Draft confirmation dialog */}
+      <AlertDialog open={showDraftDialog} onOpenChange={setShowDraftDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Yazı taslak olarak kaydedilecek</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bu yazı taslak olarak kaydedilecek ve blog sayfasında görünmeyecek. Yayınlamak ister misiniz?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => { setShowDraftDialog(false); doSave(); }}>
+              Taslak Olarak Kaydet
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={() => { setShowDraftDialog(false); doSave("published"); }}
+              className="bg-green-600 hover:bg-green-700">
+              Yayınla ve Kaydet
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
@@ -170,7 +220,6 @@ const AdminBlogEditor = () => {
             </CardContent>
           </Card>
 
-          {/* FAQ section */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base">SSS</CardTitle>
@@ -193,7 +242,6 @@ const AdminBlogEditor = () => {
           </Card>
         </div>
 
-        {/* Sidebar */}
         <div className="space-y-4">
           <Card>
             <CardHeader><CardTitle className="text-base">SEO</CardTitle></CardHeader>
