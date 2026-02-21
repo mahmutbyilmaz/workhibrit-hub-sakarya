@@ -12,6 +12,7 @@ const SSS = () => {
       const { data, error } = await supabase
         .from("faqs")
         .select("*")
+        .or("status.eq.published,and(status.eq.scheduled,scheduled_at.lte.now())")
         .order("sort_order", { ascending: true });
       if (error) throw error;
       return data;
@@ -35,9 +36,9 @@ const SSS = () => {
   return (
     <Layout>
       <SEOHead
-        title="Sıkça Sorulan Sorular | Workhibrit Sakarya"
-        description="Sanal ofis, coworking ve ofis çözümleri hakkında sıkça sorulan sorular. Workhibrit SSS sayfası."
-        keywords="sanal ofis sss, coworking sss, workhibrit sss"
+        title="Sıkça Sorulan Sorular | Sakarya Sanal Ofis"
+        description="Sanal ofis, coworking ve ofis çözümleri hakkında sıkça sorulan sorular. Sakarya Sanal Ofis SSS sayfası."
+        keywords="sanal ofis sss, coworking sss, sakarya sanal ofis sss"
         canonical="https://sakaryasanalofis.com/sikca-sorulan-sorular"
       />
 

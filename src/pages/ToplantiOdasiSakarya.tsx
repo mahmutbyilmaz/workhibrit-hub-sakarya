@@ -26,8 +26,8 @@ const ToplantiOdasiSakarya = () => {
   return (
   <Layout>
     <SEOHead
-      title="Toplantı Odası Sakarya | Workhibrit Kiralık Toplantı Odası"
-      description="Sakarya'da kiralık toplantı odası. Profesyonel ekipman, video konferans imkanı. Workhibrit toplantı odası saatlik ve günlük kiralama."
+      title="Toplantı Odası Sakarya | Sakarya Sanal Ofis Kiralık Toplantı Odası"
+      description="Sakarya'da kiralık toplantı odası. Profesyonel ekipman, video konferans imkanı. Sakarya Sanal Ofis toplantı odası saatlik ve günlük kiralama."
       keywords="toplantı odası sakarya, kiralık toplantı odası sakarya, toplantı odası kiralama"
       canonical="https://sakaryasanalofis.com/toplanti-odasi-sakarya"
     />

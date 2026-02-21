@@ -18,7 +18,7 @@ const Footer = () => {
           {/* Brand */}
           <div>
             <span className="font-display text-xl font-extrabold text-primary">
-              Work<span className="text-accent-foreground">hibrit</span>
+              Sakarya <span className="text-accent-foreground">Sanal Ofis</span>
             </span>
             <p className="mt-3 text-sm opacity-70">Sakarya'da sanal ofis ve coworking hizmeti sunan yerel bir ofis çözümleri markasıdır.</p>
             {socialLinks.length > 0 && (

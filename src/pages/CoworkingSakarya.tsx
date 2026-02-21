@@ -26,8 +26,8 @@ const CoworkingSakarya = () => {
   return (
   <Layout>
     <SEOHead
-      title="Coworking Sakarya | Workhibrit Ortak Çalışma Alanı"
-      description="Sakarya'da coworking ve ortak çalışma alanı. Modern, verimli çalışma ortamı. Workhibrit coworking space Sakarya."
+      title="Coworking Sakarya | Sakarya Sanal Ofis Ortak Çalışma Alanı"
+      description="Sakarya'da coworking ve ortak çalışma alanı. Modern, verimli çalışma ortamı. Sakarya Sanal Ofis coworking space Sakarya."
       keywords="coworking sakarya, ortak çalışma alanı sakarya, coworking space sakarya"
       canonical="https://sakaryasanalofis.com/coworking-sakarya"
     />

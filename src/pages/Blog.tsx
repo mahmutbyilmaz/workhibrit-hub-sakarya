@@ -13,8 +13,8 @@ const Blog = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("blog_posts")
-        .select("slug, title, excerpt, category, created_at, featured_image")
-        .eq("status", "published")
+        .select("slug, title, excerpt, category, created_at, featured_image, status, scheduled_at")
+        .or("status.eq.published,and(status.eq.scheduled,scheduled_at.lte.now())")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
@@ -24,8 +24,8 @@ const Blog = () => {
   return (
     <Layout>
       <SEOHead
-        title="Blog | Workhibrit Sakarya - Sanal Ofis ve Coworking Bilgileri"
-        description="Sanal ofis, coworking ve ofis çözümleri hakkında güncel bilgiler. Workhibrit blog yazıları."
+        title="Blog | Sakarya Sanal Ofis - Sanal Ofis ve Coworking Bilgileri"
+        description="Sanal ofis, coworking ve ofis çözümleri hakkında güncel bilgiler. Sakarya Sanal Ofis blog yazıları."
         keywords="sanal ofis blog, coworking blog, ofis çözümleri"
         canonical="https://sakaryasanalofis.com/blog"
       />
