@@ -1,71 +1,69 @@
+import { useQuery } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
 import SEOHead from "@/components/SEOHead";
 import FAQSection from "@/components/FAQSection";
 import CTASection from "@/components/CTASection";
+import { supabase } from "@/integrations/supabase/client";
 
-const categories = [
-  {
-    title: "Sanal Ofis",
-    faqs: [
-      { q: "Sanal ofis nedir?", a: "Sanal ofis, fiziksel bir mekan kiralamadan profesyonel bir iş adresi ve hizmet almanızı sağlayan bir çözümdür." },
-      { q: "Sanal ofis yasal mı?", a: "Evet, Türkiye'de sanal ofis tamamen yasal bir uygulamadır." },
-      { q: "Sanal ofis ile şirket kurulabilir mi?", a: "Evet, sanal ofis adresi ile her türlü şirket kurulabilir." },
-      { q: "Posta ve kargo hizmeti dahil mi?", a: "Evet, gelen postalarınız sizin adınıza teslim alınır." },
-    ],
-  },
-  {
-    title: "Coworking",
-    faqs: [
-      { q: "Coworking nedir?", a: "Coworking, farklı profesyonellerin ortak bir alanı paylaştığı modern çalışma modelidir." },
-      { q: "Günlük kullanım mümkün mü?", a: "Evet, günlük geçiş kartı ile tek seferlik kullanım yapabilirsiniz." },
-      { q: "İnternet hızı ne kadar?", a: "Fiber altyapılı yüksek hızlı internet sunuyoruz." },
-    ],
-  },
-  {
-    title: "Fiyatlandırma",
-    faqs: [
-      { q: "Sanal ofis fiyatları ne kadar?", a: "Sanal ofis aylık ₺750'den başlamaktadır." },
-      { q: "Fiyatlara KDV dahil mi?", a: "Belirtilen fiyatlar KDV hariçtir." },
-      { q: "Ödeme yöntemleri nelerdir?", a: "Havale, EFT ve kredi kartı ile ödeme yapabilirsiniz." },
-    ],
-  },
-  {
-    title: "Genel",
-    faqs: [
-      { q: "Workhibrit nerede?", a: `${" "}Sakarya Adapazarı'nda merkezi konumda bulunuyoruz.` },
-      { q: "Çalışma saatleri nedir?", a: "Hafta içi 09:00-18:00, Cumartesi 09:00-14:00." },
-      { q: "Ücretsiz tur yapılabiliyor mu?", a: "Evet, ofislerimizi görmek için ücretsiz tur randevusu alabilirsiniz." },
-    ],
-  },
-];
+const SSS = () => {
+  const { data: faqs, isLoading } = useQuery({
+    queryKey: ["faqs_public"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("faqs")
+        .select("*")
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
 
-const allFaqs = categories.flatMap((c) => c.faqs);
+  // Group by category
+  const categories = faqs
+    ? Object.entries(
+        faqs.reduce<Record<string, Array<{ q: string; a: string }>>>((acc, faq) => {
+          const cat = faq.category || "Genel";
+          if (!acc[cat]) acc[cat] = [];
+          acc[cat].push({ q: faq.question, a: faq.answer });
+          return acc;
+        }, {})
+      )
+    : [];
 
-const SSS = () => (
-  <Layout>
-    <SEOHead
-      title="Sıkça Sorulan Sorular | Workhibrit Sakarya"
-      description="Sanal ofis, coworking ve ofis çözümleri hakkında sıkça sorulan sorular. Workhibrit SSS sayfası."
-      keywords="sanal ofis sss, coworking sss, workhibrit sss"
-      canonical="https://sakaryasanalofis.com/sikca-sorulan-sorular"
-    />
+  const allFaqs = faqs?.map((f) => ({ q: f.question, a: f.answer })) ?? [];
 
-    <section className="bg-primary py-16 text-primary-foreground">
-      <div className="container text-center">
-        <h1 className="font-display text-4xl font-extrabold">Sıkça Sorulan Sorular</h1>
-        <p className="mt-4 text-lg text-primary-foreground/80">Merak ettiğiniz tüm soruların cevapları burada.</p>
-      </div>
-    </section>
+  return (
+    <Layout>
+      <SEOHead
+        title="Sıkça Sorulan Sorular | Workhibrit Sakarya"
+        description="Sanal ofis, coworking ve ofis çözümleri hakkında sıkça sorulan sorular. Workhibrit SSS sayfası."
+        keywords="sanal ofis sss, coworking sss, workhibrit sss"
+        canonical="https://sakaryasanalofis.com/sikca-sorulan-sorular"
+      />
 
-    {categories.map((cat, i) => (
-      <FAQSection key={i} title={cat.title} faqs={cat.faqs} showSchema={i === 0} />
-    ))}
+      <section className="bg-primary py-16 text-primary-foreground">
+        <div className="container text-center">
+          <h1 className="font-display text-4xl font-extrabold">Sıkça Sorulan Sorular</h1>
+          <p className="mt-4 text-lg text-primary-foreground/80">Merak ettiğiniz tüm soruların cevapları burada.</p>
+        </div>
+      </section>
 
-    {/* Full schema for all FAQs */}
-    <FAQSection faqs={allFaqs} showSchema={true} title="" />
+      {isLoading ? (
+        <div className="py-16 text-center text-muted-foreground">Yükleniyor...</div>
+      ) : !categories.length ? (
+        <div className="py-16 text-center text-muted-foreground">Henüz soru eklenmemiş.</div>
+      ) : (
+        <>
+          {categories.map(([title, items], i) => (
+            <FAQSection key={title} title={title} faqs={items} showSchema={i === 0} />
+          ))}
+          {allFaqs.length > 0 && <FAQSection faqs={allFaqs} showSchema={true} title="" />}
+        </>
+      )}
 
-    <CTASection title="Başka Sorunuz mu Var?" subtitle="Bize WhatsApp veya telefonla ulaşabilirsiniz." />
-  </Layout>
-);
+      <CTASection title="Başka Sorunuz mu Var?" subtitle="Bize WhatsApp veya telefonla ulaşabilirsiniz." />
+    </Layout>
+  );
+};
 
 export default SSS;
