@@ -10,6 +10,22 @@ import { Label } from "@/components/ui/label";
 import { business } from "@/data/business";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useBusinessData } from "@/hooks/useBusinessData";
+
+const toEmbedUrl = (url: string): string => {
+  if (!url) return "";
+  if (url.includes("/maps/embed")) return url;
+  const coordMatch = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+  if (coordMatch) {
+    return `https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d1500!2d${coordMatch[2]}!3d${coordMatch[1]}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1str!2str`;
+  }
+  const placeMatch = url.match(/\/place\/([^/@]+)/);
+  if (placeMatch) {
+    const query = decodeURIComponent(placeMatch[1].replace(/\+/g, " "));
+    return `https://www.google.com/maps/embed/v1/place?key=&q=${encodeURIComponent(query)}`;
+  }
+  return url;
+};
 
 const Iletisim = () => {
   const { toast } = useToast();
@@ -38,7 +54,8 @@ const Iletisim = () => {
   const weekdays = settings?.working_hours_weekdays || business.workingHours.weekdays;
   const saturday = settings?.working_hours_saturday || business.workingHours.saturday;
   const sunday = settings?.working_hours_sunday || business.workingHours.sunday;
-  const mapsEmbed = settings?.maps_embed || business.mapsEmbed;
+  const { mapsEmbed: hookMapsEmbed, mapsLink } = useBusinessData();
+  const mapsEmbed = settings?.maps_embed || hookMapsEmbed;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,7 +160,7 @@ const Iletisim = () => {
               {/* Map */}
               <div className="mt-8 overflow-hidden rounded-lg border">
                 <iframe
-                  src={mapsEmbed}
+                  src={toEmbedUrl(mapsEmbed)}
                   width="100%"
                   height="300"
                   style={{ border: 0 }}
@@ -152,6 +169,14 @@ const Iletisim = () => {
                   title="Sakarya Sanal Ofis Konum"
                 />
               </div>
+              {mapsLink && (
+                <Button variant="outline" className="mt-4 w-full" asChild>
+                  <a href={mapsLink} target="_blank" rel="noopener noreferrer">
+                    <MapPin className="mr-2 h-4 w-4" />
+                    Yol Tarifi Al
+                  </a>
+                </Button>
+              )}
             </div>
           </div>
         </div>
