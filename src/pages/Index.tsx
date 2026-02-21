@@ -59,7 +59,7 @@ const Index = () => {
               <Button size="lg" asChild>
                 <Link to="/sanal-ofis-sakarya">Sanal Ofis Hizmeti</Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-accent-foreground/30 text-accent-foreground hover:bg-accent-foreground/10" asChild>
+              <Button size="lg" variant="outline" className="border-accent-foreground/30 bg-transparent text-accent-foreground hover:bg-accent-foreground/10" asChild>
                 <a href={`https://wa.me/${business.whatsapp}`} target="_blank" rel="noopener noreferrer">
                   Ücretsiz Danışmanlık
                 </a>
