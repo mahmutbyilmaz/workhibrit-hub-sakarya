@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Trash2 } from "lucide-react";
 import AdminLayout from "@/components/AdminLayout";
+import TipTapEditor from "@/components/TipTapEditor";
+import AIBlogGenerator from "@/components/AIBlogGenerator";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -86,6 +88,24 @@ const AdminBlogEditor = () => {
     setFaqs((prev) => prev.map((f, idx) => (idx === i ? { ...f, [field]: value } : f)));
   };
 
+  const handleAIGenerated = (result: any) => {
+    setForm({
+      title: result.title || "",
+      slug: result.slug || "",
+      excerpt: result.excerpt || "",
+      content: result.content || "",
+      meta_title: result.meta_title || "",
+      meta_description: result.meta_description || "",
+      keywords: (result.keywords || []).join(", "),
+      category: result.category || "Sanal Ofis",
+      status: "draft",
+      featured_image: "",
+    });
+    if (result.faqs) {
+      setFaqs(result.faqs);
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     const payload = {
@@ -124,6 +144,7 @@ const AdminBlogEditor = () => {
       <div className="mb-6 flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold">{isNew ? "Yeni Blog Yazısı" : "Yazıyı Düzenle"}</h1>
         <div className="flex gap-2">
+          {isNew && <AIBlogGenerator onGenerated={handleAIGenerated} />}
           <Select value={form.status} onValueChange={(v) => handleChange("status", v)}>
             <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
             <SelectContent>
@@ -145,7 +166,7 @@ const AdminBlogEditor = () => {
               <Input placeholder="Başlık" value={form.title} onChange={(e) => handleChange("title", e.target.value)} />
               <Input placeholder="URL Slug" value={form.slug} onChange={(e) => handleChange("slug", e.target.value)} />
               <Textarea placeholder="Özet" rows={2} value={form.excerpt} onChange={(e) => handleChange("excerpt", e.target.value)} />
-              <Textarea placeholder="İçerik (HTML)" rows={15} value={form.content} onChange={(e) => handleChange("content", e.target.value)} className="font-mono text-sm" />
+              <TipTapEditor content={form.content} onChange={(html) => setForm((prev) => ({ ...prev, content: html }))} />
             </CardContent>
           </Card>
 

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Building2, Users, Presentation, DoorOpen, Star, CheckCircle, Shield, Clock } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Layout from "@/components/Layout";
@@ -7,6 +8,7 @@ import SEOHead from "@/components/SEOHead";
 import FAQSection from "@/components/FAQSection";
 import CTASection from "@/components/CTASection";
 import { business, services, testimonials, homepageFAQs } from "@/data/business";
+import { supabase } from "@/integrations/supabase/client";
 
 const iconMap: Record<string, React.ReactNode> = {
   Building2: <Building2 className="h-8 w-8" />,
@@ -16,6 +18,23 @@ const iconMap: Record<string, React.ReactNode> = {
 };
 
 const Index = () => {
+  // Fetch dynamic FAQs assigned to homepage
+  const { data: dbFaqs } = useQuery({
+    queryKey: ["homepage_faqs"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("faqs")
+        .select("question, answer")
+        .contains("page_assignments", ["homepage"])
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return data?.map((f) => ({ q: f.question, a: f.answer })) ?? [];
+    },
+  });
+
+  // Use DB FAQs if available, fallback to static
+  const displayFaqs = dbFaqs && dbFaqs.length > 0 ? dbFaqs : homepageFAQs;
+
   return (
     <Layout>
       <SEOHead
@@ -154,8 +173,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* FAQ */}
-      <FAQSection faqs={homepageFAQs} />
+      {/* FAQ - Dynamic from DB */}
+      <FAQSection faqs={displayFaqs} />
 
       {/* Map */}
       <section className="bg-secondary py-16">
