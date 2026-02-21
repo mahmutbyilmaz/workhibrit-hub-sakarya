@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,18 +9,25 @@ import { useToast } from "@/hooks/use-toast";
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user, role, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Redirect to admin when authenticated with a role
+  useEffect(() => {
+    if (!loading && user && role) {
+      navigate("/admin", { replace: true });
+    }
+  }, [loading, user, role, navigate]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setIsSubmitting(true);
     if (isRegister) {
       const { error } = await signUp(email, password);
-      setIsLoading(false);
+      setIsSubmitting(false);
       if (error) {
         toast({ title: "Kayıt başarısız", description: error.message, variant: "destructive" });
       } else {
@@ -29,14 +36,15 @@ const AdminLogin = () => {
       }
     } else {
       const { error } = await signIn(email, password);
-      setIsLoading(false);
+      setIsSubmitting(false);
       if (error) {
         toast({ title: "Giriş başarısız", description: error.message, variant: "destructive" });
-      } else {
-        navigate("/admin");
       }
+      // Navigation will happen via useEffect when auth state updates
     }
   };
+
+  // Don't block login page with loading spinner
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-secondary p-4">
@@ -63,8 +71,8 @@ const AdminLogin = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "İşleniyor..." : isRegister ? "Kayıt Ol" : "Giriş Yap"}
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? "İşleniyor..." : isRegister ? "Kayıt Ol" : "Giriş Yap"}
             </Button>
             <button type="button" className="w-full text-center text-sm text-muted-foreground hover:text-foreground" onClick={() => setIsRegister(!isRegister)}>
               {isRegister ? "Zaten hesabınız var mı? Giriş yapın" : "Hesabınız yok mu? Kayıt olun"}
