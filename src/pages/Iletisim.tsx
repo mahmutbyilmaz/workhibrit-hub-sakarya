@@ -8,15 +8,29 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { business } from "@/data/business";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Iletisim = () => {
   const { toast } = useToast();
   const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({ title: "Mesajınız alındı!", description: "En kısa sürede size dönüş yapacağız." });
-    setForm({ name: "", email: "", phone: "", message: "" });
+    setIsSubmitting(true);
+    const { error } = await supabase.from("contact_messages").insert({
+      name: form.name.trim(),
+      email: form.email.trim(),
+      phone: form.phone.trim() || null,
+      message: form.message.trim(),
+    });
+    setIsSubmitting(false);
+    if (error) {
+      toast({ title: "Hata", description: "Mesaj gönderilemedi, lütfen tekrar deneyin.", variant: "destructive" });
+    } else {
+      toast({ title: "Mesajınız alındı!", description: "En kısa sürede size dönüş yapacağız." });
+      setForm({ name: "", email: "", phone: "", message: "" });
+    }
   };
 
   return (
@@ -58,9 +72,9 @@ const Iletisim = () => {
                   <Label htmlFor="message">Mesajınız</Label>
                   <Textarea id="message" rows={5} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} required />
                 </div>
-                <Button type="submit" size="lg">
+                <Button type="submit" size="lg" disabled={isSubmitting}>
                   <Send className="mr-2 h-4 w-4" />
-                  Gönder
+                  {isSubmitting ? "Gönderiliyor..." : "Gönder"}
                 </Button>
               </form>
             </div>

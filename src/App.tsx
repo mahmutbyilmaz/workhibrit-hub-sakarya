@@ -24,6 +24,7 @@ import AdminBlogEditor from "./pages/AdminBlogEditor";
 import AdminFAQ from "./pages/AdminFAQ";
 import AdminMedia from "./pages/AdminMedia";
 import AdminSEO from "./pages/AdminSEO";
+import AdminMessages from "./pages/AdminMessages";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +57,7 @@ const App = () => (
             <Route path="/admin/faq" element={<ProtectedRoute><AdminFAQ /></ProtectedRoute>} />
             <Route path="/admin/media" element={<ProtectedRoute><AdminMedia /></ProtectedRoute>} />
             <Route path="/admin/seo" element={<ProtectedRoute requiredRole="admin"><AdminSEO /></ProtectedRoute>} />
+            <Route path="/admin/messages" element={<ProtectedRoute><AdminMessages /></ProtectedRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
