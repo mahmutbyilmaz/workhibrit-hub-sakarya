@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Edit, Trash2 } from "lucide-react";
+import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +17,7 @@ interface BlogPost {
   status: string;
   category: string | null;
   created_at: string;
+  scheduled_at: string | null;
 }
 
 const AdminBlog = () => {
@@ -26,9 +28,9 @@ const AdminBlog = () => {
   const fetchPosts = async () => {
     const { data, error } = await supabase
       .from("blog_posts")
-      .select("id, title, slug, status, category, created_at")
+      .select("id, title, slug, status, category, created_at, scheduled_at")
       .order("created_at", { ascending: false });
-    if (!error && data) setPosts(data);
+    if (!error && data) setPosts(data as BlogPost[]);
     setLoading(false);
   };
 
@@ -38,12 +40,12 @@ const AdminBlog = () => {
     const newStatus = post.status === "published" ? "draft" : "published";
     const { error } = await supabase
       .from("blog_posts")
-      .update({ status: newStatus })
+      .update({ status: newStatus, scheduled_at: null })
       .eq("id", post.id);
     if (error) {
       toast({ title: "Hata", description: error.message, variant: "destructive" });
     } else {
-      setPosts((prev) => prev.map((p) => p.id === post.id ? { ...p, status: newStatus } : p));
+      setPosts((prev) => prev.map((p) => p.id === post.id ? { ...p, status: newStatus, scheduled_at: null } : p));
       toast({ title: newStatus === "published" ? "Yazı yayınlandı" : "Yazı taslağa alındı" });
     }
   };
@@ -57,6 +59,18 @@ const AdminBlog = () => {
       setPosts((prev) => prev.filter((p) => p.id !== id));
       toast({ title: "Yazı silindi" });
     }
+  };
+
+  const getStatusBadge = (post: BlogPost) => {
+    if (post.status === "scheduled" && post.scheduled_at) {
+      return (
+        <Badge variant="outline" className="border-blue-500 text-blue-600">
+          Zamanlanmış: {format(new Date(post.scheduled_at), "dd MMM yyyy HH:mm")}
+        </Badge>
+      );
+    }
+    if (post.status === "published") return <Badge>Yayında</Badge>;
+    return <Badge variant="secondary">Taslak</Badge>;
   };
 
   return (
@@ -79,10 +93,8 @@ const AdminBlog = () => {
               <CardContent className="flex items-center justify-between p-4">
                 <div className="flex-1">
                   <h3 className="font-semibold">{post.title}</h3>
-                  <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                    <Badge variant={post.status === "published" ? "default" : "secondary"}>
-                      {post.status === "published" ? "Yayında" : "Taslak"}
-                    </Badge>
+                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                    {getStatusBadge(post)}
                     {post.category && <span>{post.category}</span>}
                     <span>{new Date(post.created_at).toLocaleDateString("tr-TR")}</span>
                   </div>

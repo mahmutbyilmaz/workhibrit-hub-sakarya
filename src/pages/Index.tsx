@@ -66,8 +66,8 @@ const Index = () => {
   return (
     <Layout>
       <SEOHead
-        title="Workhibrit | Sakarya Sanal Ofis ve Coworking"
-        description="Workhibrit, Sakarya'da sanal ofis, coworking, toplantı odası ve hazır ofis hizmeti sunan lider ofis çözümleri markasıdır."
+        title="Sakarya Sanal Ofis | Sanal Ofis ve Coworking"
+        description="Sakarya Sanal Ofis, Sakarya'da sanal ofis, coworking, toplantı odası ve hazır ofis hizmeti sunan lider ofis çözümleri markasıdır."
         keywords="sakarya sanal ofis, sanal ofis sakarya, coworking sakarya, toplantı odası sakarya"
         canonical="https://sakaryasanalofis.com"
       />
@@ -206,7 +206,7 @@ const Index = () => {
               allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              title="Workhibrit Konum"
+              title="Sakarya Sanal Ofis Konum"
             />
           </div>
           <p className="mt-4 text-center text-sm text-muted-foreground">{business.fullAddress}</p>

@@ -30,8 +30,8 @@ const HazirOfis = () => {
   return (
   <Layout>
     <SEOHead
-      title="Hazır Ofis Sakarya | Workhibrit Kiralık Ofis"
-      description="Sakarya'da hazır ofis kiralama. Tam donanımlı, kullanıma hazır özel ofis alanları. Workhibrit ile hemen taşının."
+      title="Hazır Ofis Sakarya | Sakarya Sanal Ofis Kiralık Ofis"
+      description="Sakarya'da hazır ofis kiralama. Tam donanımlı, kullanıma hazır özel ofis alanları. Sakarya Sanal Ofis ile hemen taşının."
       keywords="hazır ofis sakarya, kiralık ofis sakarya, ofis kiralama sakarya"
       canonical="https://sakaryasanalofis.com/hazir-ofis"
     />

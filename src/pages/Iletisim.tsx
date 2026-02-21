@@ -61,9 +61,9 @@ const Iletisim = () => {
   return (
     <Layout>
       <SEOHead
-        title="İletişim | Workhibrit Sakarya"
-        description="Workhibrit ile iletişime geçin. Sakarya'da sanal ofis, coworking ve ofis çözümleri için bize ulaşın."
-        keywords="workhibrit iletişim, sakarya ofis iletişim"
+        title="İletişim | Sakarya Sanal Ofis"
+        description="Sakarya Sanal Ofis ile iletişime geçin. Sakarya'da sanal ofis, coworking ve ofis çözümleri için bize ulaşın."
+        keywords="sakarya sanal ofis iletişim, sakarya ofis iletişim"
         canonical="https://sakaryasanalofis.com/iletisim"
       />
 
@@ -149,7 +149,7 @@ const Iletisim = () => {
                   style={{ border: 0 }}
                   allowFullScreen
                   loading="lazy"
-                  title="Workhibrit Konum"
+                  title="Sakarya Sanal Ofis Konum"
                 />
               </div>
             </div>

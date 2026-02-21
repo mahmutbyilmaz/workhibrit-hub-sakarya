@@ -44,8 +44,8 @@ const SanalOfisFiyatlari = () => {
   return (
   <Layout>
     <SEOHead
-      title="Sanal Ofis Fiyatları 2025 | Workhibrit Sakarya"
-      description="Sakarya sanal ofis fiyatları 2025. Aylık ₺750'den başlayan fiyatlarla profesyonel iş adresi. Workhibrit sanal ofis paketlerini karşılaştırın."
+      title="Sanal Ofis Fiyatları 2025 | Sakarya Sanal Ofis"
+      description="Sakarya sanal ofis fiyatları 2025. Aylık ₺750'den başlayan fiyatlarla profesyonel iş adresi. Sakarya Sanal Ofis paketlerini karşılaştırın."
       keywords="sanal ofis fiyat, sanal ofis sakarya fiyat, sanal ofis fiyatları 2025"
       canonical="https://sakaryasanalofis.com/sanal-ofis-fiyatlari"
     />

@@ -1,22 +1,26 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { format } from "date-fns";
+import { CalendarIcon, Plus, Trash2, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Trash2 } from "lucide-react";
 import AdminLayout from "@/components/AdminLayout";
 import TipTapEditor from "@/components/TipTapEditor";
 import AIBlogGenerator from "@/components/AIBlogGenerator";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 interface FAQ {
   q: string;
@@ -45,6 +49,8 @@ const AdminBlogEditor = () => {
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [saving, setSaving] = useState(false);
   const [showDraftDialog, setShowDraftDialog] = useState(false);
+  const [scheduledDate, setScheduledDate] = useState<Date | undefined>();
+  const [scheduledTime, setScheduledTime] = useState("09:00");
 
   useEffect(() => {
     if (!isNew && id) {
@@ -68,6 +74,11 @@ const AdminBlogEditor = () => {
               featured_image: data.featured_image || "",
             });
             setFaqs(Array.isArray(data.faqs) ? (data.faqs as unknown as FAQ[]) : []);
+            if ((data as any).scheduled_at) {
+              const d = new Date((data as any).scheduled_at);
+              setScheduledDate(d);
+              setScheduledTime(format(d, "HH:mm"));
+            }
           }
         });
     }
@@ -112,10 +123,18 @@ const AdminBlogEditor = () => {
     }
   };
 
+  const getScheduledAt = (): string | null => {
+    if (!scheduledDate) return null;
+    const [hours, minutes] = scheduledTime.split(":").map(Number);
+    const d = new Date(scheduledDate);
+    d.setHours(hours, minutes, 0, 0);
+    return d.toISOString();
+  };
+
   const doSave = async (statusOverride?: string) => {
     setSaving(true);
     const finalStatus = statusOverride || form.status;
-    const payload = {
+    const payload: any = {
       title: form.title,
       slug: form.slug,
       excerpt: form.excerpt,
@@ -128,6 +147,7 @@ const AdminBlogEditor = () => {
       featured_image: form.featured_image,
       faqs: faqs as any,
       author_id: user?.id,
+      scheduled_at: finalStatus === "scheduled" ? getScheduledAt() : null,
     };
 
     let error;
@@ -155,9 +175,23 @@ const AdminBlogEditor = () => {
     doSave();
   };
 
+  const handleSchedule = () => {
+    if (!scheduledDate) {
+      toast({ title: "Hata", description: "Lütfen zamanlama tarihi seçin.", variant: "destructive" });
+      return;
+    }
+    doSave("scheduled");
+  };
+
   const toggleStatus = () => {
     const newStatus = form.status === "published" ? "draft" : "published";
     setForm((prev) => ({ ...prev, status: newStatus }));
+  };
+
+  const statusBadge = () => {
+    if (form.status === "published") return <Badge className="text-sm">Yayında</Badge>;
+    if (form.status === "scheduled") return <Badge variant="outline" className="text-sm border-blue-500 text-blue-600">Zamanlanmış</Badge>;
+    return <Badge variant="secondary" className="text-sm">Taslak</Badge>;
   };
 
   return (
@@ -165,9 +199,7 @@ const AdminBlogEditor = () => {
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <h1 className="font-display text-2xl font-bold">{isNew ? "Yeni Blog Yazısı" : "Yazıyı Düzenle"}</h1>
-          <Badge variant={form.status === "published" ? "default" : "secondary"} className="text-sm">
-            {form.status === "published" ? "Yayında" : "Taslak"}
-          </Badge>
+          {statusBadge()}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {isNew && <AIBlogGenerator onGenerated={handleAIGenerated} />}
@@ -264,6 +296,47 @@ const AdminBlogEditor = () => {
                 </SelectContent>
               </Select>
               <Input placeholder="Öne Çıkan Görsel URL" value={form.featured_image} onChange={(e) => handleChange("featured_image", e.target.value)} />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle className="text-base flex items-center gap-2"><Clock className="h-4 w-4" /> Zamanlanmış Yayın</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !scheduledDate && "text-muted-foreground")}>
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {scheduledDate ? format(scheduledDate, "dd MMM yyyy") : "Tarih seçin"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={scheduledDate}
+                    onSelect={setScheduledDate}
+                    disabled={(date) => date < new Date()}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+              <Input
+                type="time"
+                value={scheduledTime}
+                onChange={(e) => setScheduledTime(e.target.value)}
+              />
+              <Button
+                onClick={handleSchedule}
+                disabled={saving || !scheduledDate}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <Clock className="mr-2 h-4 w-4" />
+                Zamanla
+              </Button>
+              {form.status === "scheduled" && scheduledDate && (
+                <p className="text-xs text-blue-600">
+                  Zamanlanmış: {format(scheduledDate, "dd MMM yyyy")} {scheduledTime}
+                </p>
+              )}
             </CardContent>
           </Card>
         </div>

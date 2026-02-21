@@ -24,10 +24,10 @@ const Header = () => {
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           {logoUrl ? (
-            <img src={logoUrl} alt="Workhibrit" className="h-10 w-auto max-w-[180px] object-contain" />
+            <img src={logoUrl} alt="Sakarya Sanal Ofis" className="h-10 w-auto max-w-[180px] object-contain" />
           ) : (
             <span className="font-display text-2xl font-extrabold tracking-tight text-primary">
-              Work<span className="text-accent">hibrit</span>
+              Sakarya <span className="text-accent">Sanal Ofis</span>
             </span>
           )}
         </Link>

@@ -32,8 +32,8 @@ const SanalOfisSakarya = () => {
   return (
   <Layout>
     <SEOHead
-      title="Sanal Ofis Sakarya | Workhibrit"
-      description="Sakarya'da sanal ofis hizmeti. Prestijli iş adresi, posta yönetimi ve şirket kuruluş desteği. Workhibrit ile profesyonel sanal ofis çözümleri."
+      title="Sanal Ofis Sakarya | Sakarya Sanal Ofis"
+      description="Sakarya'da sanal ofis hizmeti. Prestijli iş adresi, posta yönetimi ve şirket kuruluş desteği. Sakarya Sanal Ofis ile profesyonel sanal ofis çözümleri."
       keywords="sanal ofis sakarya, sakarya sanal ofis, sanal ofis hizmeti sakarya"
       canonical="https://sakaryasanalofis.com/sanal-ofis-sakarya"
     />

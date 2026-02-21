@@ -53,9 +53,9 @@ const Hakkimizda = () => {
   return (
     <Layout>
       <SEOHead
-        title="Hakkımızda | Workhibrit Sakarya"
-        description="Workhibrit hakkında. Sakarya'da sanal ofis, coworking ve ofis çözümleri sunan güvenilir yerel marka."
-        keywords="workhibrit hakkında, sakarya ofis çözümleri"
+        title="Hakkımızda | Sakarya Sanal Ofis"
+        description="Sakarya Sanal Ofis hakkında. Sakarya'da sanal ofis, coworking ve ofis çözümleri sunan güvenilir yerel marka."
+        keywords="sakarya sanal ofis hakkında, sakarya ofis çözümleri"
         canonical="https://sakaryasanalofis.com/hakkimizda"
       />
 

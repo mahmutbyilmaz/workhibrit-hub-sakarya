@@ -27,6 +27,7 @@ export type Database = {
           keywords: string[] | null
           meta_description: string | null
           meta_title: string | null
+          scheduled_at: string | null
           slug: string
           status: string
           title: string
@@ -44,6 +45,7 @@ export type Database = {
           keywords?: string[] | null
           meta_description?: string | null
           meta_title?: string | null
+          scheduled_at?: string | null
           slug: string
           status?: string
           title: string
@@ -61,6 +63,7 @@ export type Database = {
           keywords?: string[] | null
           meta_description?: string | null
           meta_title?: string | null
+          scheduled_at?: string | null
           slug?: string
           status?: string
           title?: string
@@ -106,7 +109,9 @@ export type Database = {
           id: string
           page_assignments: string[] | null
           question: string
+          scheduled_at: string | null
           sort_order: number
+          status: string
           updated_at: string
         }
         Insert: {
@@ -116,7 +121,9 @@ export type Database = {
           id?: string
           page_assignments?: string[] | null
           question: string
+          scheduled_at?: string | null
           sort_order?: number
+          status?: string
           updated_at?: string
         }
         Update: {
@@ -126,7 +133,9 @@ export type Database = {
           id?: string
           page_assignments?: string[] | null
           question?: string
+          scheduled_at?: string | null
           sort_order?: number
+          status?: string
           updated_at?: string
         }
         Relationships: []
