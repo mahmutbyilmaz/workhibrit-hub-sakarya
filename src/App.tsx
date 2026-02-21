@@ -27,6 +27,7 @@ import AdminSEO from "./pages/AdminSEO";
 import AdminMessages from "./pages/AdminMessages";
 import AdminSettings from "./pages/AdminSettings";
 import AdminContent from "./pages/AdminContent";
+import AdminAbout from "./pages/AdminAbout";
 
 const queryClient = new QueryClient();
 
@@ -62,6 +63,7 @@ const App = () => (
             <Route path="/admin/messages" element={<ProtectedRoute><AdminMessages /></ProtectedRoute>} />
             <Route path="/admin/settings" element={<ProtectedRoute requiredRole="admin"><AdminSettings /></ProtectedRoute>} />
             <Route path="/admin/content" element={<ProtectedRoute><AdminContent /></ProtectedRoute>} />
+            <Route path="/admin/about" element={<ProtectedRoute><AdminAbout /></ProtectedRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
