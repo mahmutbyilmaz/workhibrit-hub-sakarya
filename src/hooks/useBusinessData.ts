@@ -16,6 +16,19 @@ export const useBusinessData = () => {
     staleTime: 1000 * 60 * 5,
   });
 
+  const { data: seoSettings } = useQuery({
+    queryKey: ["seo_settings"],
+    queryFn: async () => {
+      const { data } = await supabase.from("seo_settings").select("key, value");
+      const map: Record<string, string> = {};
+      data?.forEach((row) => {
+        map[row.key] = row.value;
+      });
+      return map;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
   const rawWhatsapp = settings?.footer_whatsapp || business.whatsapp;
   const whatsapp = rawWhatsapp.replace(/\D/g, "");
 
@@ -29,5 +42,7 @@ export const useBusinessData = () => {
     linkedin: settings?.footer_linkedin || business.social?.linkedin || "",
     twitter: settings?.footer_twitter || "",
     logoUrl: settings?.header_logo_url || "",
+    mapsEmbed: seoSettings?.maps_embed || business.mapsEmbed,
+    mapsLink: seoSettings?.maps_link || business.mapsLink,
   };
 };

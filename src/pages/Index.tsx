@@ -23,7 +23,7 @@ type Service = { id: string; title: string; slug: string; description: string; i
 type Testimonial = { name: string; company: string; text: string; rating: number };
 
 const Index = () => {
-  const { whatsapp } = useBusinessData();
+  const { whatsapp, mapsEmbed } = useBusinessData();
   // Fetch all homepage content blocks
   const { data: contentBlocks } = useQuery({
     queryKey: ["homepage_content"],
@@ -205,7 +205,7 @@ const Index = () => {
           <h2 className="mb-8 text-center font-display text-3xl font-bold">Konumumuz</h2>
           <div className="mx-auto max-w-4xl overflow-hidden rounded-lg border shadow-sm">
             <iframe
-              src={business.mapsEmbed}
+              src={mapsEmbed}
               width="100%"
               height="400"
               style={{ border: 0 }}
