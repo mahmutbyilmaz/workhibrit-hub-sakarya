@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LayoutDashboard, FileText, HelpCircle, Image, Settings, LogOut, MessageSquare, Sliders, Layout, Info } from "lucide-react";
+import { LayoutDashboard, FileText, HelpCircle, Image, Settings, LogOut, MessageSquare, Sliders, Layout, Info, FileSignature } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -13,6 +13,7 @@ const sidebarLinks = [
   { label: "Mesajlar", href: "/admin/messages", icon: MessageSquare },
   { label: "Medya", href: "/admin/media", icon: Image },
   { label: "SEO Ayarları", href: "/admin/seo", icon: Settings },
+  { label: "Sözleşmeler", href: "/admin/contracts", icon: FileSignature },
   { label: "Site Ayarları", href: "/admin/settings", icon: Sliders },
 ];
 
@@ -38,7 +39,7 @@ const AdminLayout = ({ children }: { children: ReactNode }) => {
         </div>
         <nav className="flex-1 space-y-1 p-3">
           {sidebarLinks.map((link) => {
-            const isActive = location.pathname === link.href;
+            const isActive = location.pathname === link.href || (link.href !== "/admin" && location.pathname.startsWith(link.href));
             return (
               <Link
                 key={link.href}

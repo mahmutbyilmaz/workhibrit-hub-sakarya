@@ -28,6 +28,9 @@ import AdminMessages from "./pages/AdminMessages";
 import AdminSettings from "./pages/AdminSettings";
 import AdminContent from "./pages/AdminContent";
 import AdminAbout from "./pages/AdminAbout";
+import AdminContracts from "./pages/AdminContracts";
+import AdminContractNew from "./pages/AdminContractNew";
+import AdminContractTemplates from "./pages/AdminContractTemplates";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +67,9 @@ const App = () => (
             <Route path="/admin/settings" element={<ProtectedRoute requiredRole="admin"><AdminSettings /></ProtectedRoute>} />
             <Route path="/admin/content" element={<ProtectedRoute><AdminContent /></ProtectedRoute>} />
             <Route path="/admin/about" element={<ProtectedRoute><AdminAbout /></ProtectedRoute>} />
+            <Route path="/admin/contracts" element={<ProtectedRoute><AdminContracts /></ProtectedRoute>} />
+            <Route path="/admin/contracts/new" element={<ProtectedRoute><AdminContractNew /></ProtectedRoute>} />
+            <Route path="/admin/contracts/templates" element={<ProtectedRoute><AdminContractTemplates /></ProtectedRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
