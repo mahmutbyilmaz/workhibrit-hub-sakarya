@@ -308,7 +308,7 @@ const AdminBlogEditor = () => {
                     {scheduledDate ? format(scheduledDate, "dd MMM yyyy") : "Tarih seçin"}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
                   <Calendar
                     mode="single"
                     selected={scheduledDate}
