@@ -235,7 +235,7 @@ const Index = () => {
               title="Sakarya Sanal Ofis Konum"
             />
           </div>
-          <p className="mt-4 text-center text-sm text-muted-foreground">{business.fullAddress}</p>
+          
         </div>
       </section>
 
