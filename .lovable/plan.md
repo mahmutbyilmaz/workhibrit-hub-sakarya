@@ -1,50 +1,73 @@
 
 
-# Admin Paneli Gelistirme: Sosyal Medya, Footer ve Logo Yonetimi
+# Logo Degisikligi ve Zamanlanmis Yayin Ozelligi
 
-## Mevcut Durum
-- `site_settings` tablosunda telefon, e-posta, adres, WhatsApp, Instagram ve LinkedIn kayitlari zaten var
-- Ancak Twitter/X linki eksik ve footer'da sosyal medya ikonlari gorunmuyor
-- Header'daki logo sabit metin ("Workhibrit") olarak kodlanmis, degistirilemez
-- Admin ayarlar sayfasi sadece basit bir form, kategorilere ayrilmamis
+## 1. Logo ve Marka Adi Degisikligi: "Workhibrit" -> "Sakarya Sanal Ofis"
 
-## Yapilacaklar
+Sitedeki tum "Workhibrit" referanslari "Sakarya Sanal Ofis" olarak guncellenecek:
 
-### 1. Veritabani: Yeni Ayar Satirlari Ekleme
-- `site_settings` tablosuna `footer_twitter` ve `header_logo_url` satirlari eklenecek
-- Mevcut satirlar korunacak
+- **Header.tsx**: Fallback metin logosu "Sakarya Sanal Ofis" olarak degisecek, img alt metni guncellenecek
+- **Footer.tsx**: Footer'daki marka adi "Sakarya Sanal Ofis" olarak degisecek
+- **SEO basliklarindaki tum sayfalar**: Index, Blog, SSS, Iletisim, SanalOfisSakarya, SanalOfisFiyatlari, HazirOfis, ToplantiOdasiSakarya, CoworkingSakarya, Hakkimizda sayfalarindaki SEO title/description'lardaki "Workhibrit" -> "Sakarya Sanal Ofis"
+- **generate-content edge function**: AI icerik uretimindeki marka referanslari guncellenecek
 
-### 2. Admin Ayarlar Sayfasini Yeniden Yapilandirma
-Sayfa kartlara bolunecek:
+## 2. Blog Yazilari Icin Zamanlanmis Yayin
 
-**Iletisim Bilgileri Karti:** Telefon, E-posta, WhatsApp, Adres (mevcut alanlar)
+### Veritabani Degisikligi
+`blog_posts` tablosuna `scheduled_at` (timestamp with time zone, nullable) kolonu eklenecek.
 
-**Sosyal Medya Karti:** Instagram URL, LinkedIn URL, Twitter/X URL (yeni)
+### Yayin Mantigi
+- Yazi durumu `scheduled` olabilecek (mevcut `draft` ve `published` yaninda)
+- `scheduled_at` tarihi gecmis ise ve durum `scheduled` ise, yazi otomatik olarak `published` olacak
+- Blog listeleme sorgulari hem `published` durumunu hem de `scheduled_at < now()` kosulunu kontrol edecek
 
-**Logo Karti:** Mevcut logo on izlemesi, yeni logo yuklemek icin dosya secici (media bucket'a yuklenecek), URL olarak kaydedilecek
+### Blog Editoru (AdminBlogEditor.tsx)
+- Detaylar kartina tarih ve saat secici eklenecek (Popover + Calendar + saat input)
+- "Zamanla" butonu eklenecek: secilen tarihte otomatik yayinlanmak uzere kaydeder
+- Status badge'e "Zamanlanmis" durumu eklenecek (mavi renk)
 
-### 3. Footer'a Sosyal Medya Ikonlari Ekleme
-- Footer iletisim bolumunun altina Instagram, LinkedIn ve Twitter/X ikonlari eklenecek
-- Linkleri `site_settings` tablosundan dinamik olarak cekilecek
-- Bos olan linkler icin ikon gosterilmeyecek
+### Blog Listesi (AdminBlog.tsx)
+- Zamanlanmis yazilarda tarih bilgisi gosterilecek
+- Badge olarak "Zamanlanmis: 25 Sub 2026 14:00" gibi bilgi gorunecek
 
-### 4. Header Logosunu Dinamik Yapma
-- Header'daki sabit "Workhibrit" metni yerine, eger `header_logo_url` ayarlanmissa resim gosterilecek
-- Logo ayarlanmamissa mevcut metin logosu korunacak (fallback)
+### Herkese Acik Blog Sayfasi (Blog.tsx)
+- Sorgu guncellenerek `scheduled` durumundaki ve `scheduled_at` gecmis olan yazilari da gosterecek
+
+### Otomatik Yayin Mekanizmasi
+Zamanlanmis yazilarin otomatik yayinlanmasi icin iki yaklasim birlikte kullanilacak:
+- **Sorgu bazli**: Blog sayfasi sorgularken `scheduled_at <= now()` olan yazilari da gosterecek (aninda gorunurluk)
+- **pg_cron ile periyodik guncelleme**: Her 5 dakikada bir zamanlanmis yazilarin durumunu `published` olarak guncelleyen bir cron job (admin panelinde dogrudan gorunurluk icin)
+
+## 3. SSS (FAQ) Icin Zamanlanmis Yayin
+
+### Veritabani Degisikligi
+`faqs` tablosuna:
+- `status` kolonu (text, default 'published') -- mevcut tum FAQ'lar yayinda kalacak
+- `scheduled_at` kolonu (timestamp with time zone, nullable)
+
+### Admin SSS Sayfasi (AdminFAQ.tsx)
+- SSS ekleme/duzenleme dialog'una tarih ve saat secici eklenecek
+- "Zamanla" secenegi: secilen tarihte otomatik yayinlanacak
+- Listede zamanlanmis SSS'ler icin bilgi gosterilecek
+
+### Herkese Acik SSS Sayfasi (SSS.tsx)
+- Sorgu guncellenerek sadece aktif (published veya scheduled_at gecmis) SSS'leri gosterecek
 
 ## Teknik Detaylar
 
-**Veritabani degisikligi:**
-- `site_settings` tablosuna 2 yeni satir INSERT edilecek: `footer_twitter`, `header_logo_url`
+**Veritabani migration'lari:**
+- `blog_posts` tablosuna `scheduled_at` kolonu eklenmesi
+- `faqs` tablosuna `status` ve `scheduled_at` kolonlari eklenmesi
+- RLS politikalarinin guncellenmesi (scheduled durumundaki yazilarin sadece admin tarafindan gorunmesi)
 
 **Degisecek dosyalar:**
-- `src/pages/AdminSettings.tsx` -- Kategorilere ayrilmis form, logo yukleme alani, Twitter/X alani eklenmesi
-- `src/components/Footer.tsx` -- Sosyal medya ikonlari (Instagram, LinkedIn, Twitter/X) eklenmesi
-- `src/components/Header.tsx` -- Dinamik logo destegi (resim veya metin fallback)
-- `src/hooks/useBusinessData.ts` -- Sosyal medya ve logo URL'lerini de dondurecek sekilde genisletilmesi
-
-**Logo yukleme akisi:**
-- Admin panelinde dosya secilecek
-- Mevcut `media` storage bucket'ina yuklenecek
-- Yuklenen dosyanin public URL'i `site_settings` tablosuna `header_logo_url` olarak kaydedilecek
+- `src/components/Header.tsx` -- Logo metin degisikligi
+- `src/components/Footer.tsx` -- Marka adi degisikligi
+- `src/pages/Index.tsx`, `Blog.tsx`, `SSS.tsx`, `Iletisim.tsx`, `SanalOfisSakarya.tsx`, `SanalOfisFiyatlari.tsx`, `HazirOfis.tsx`, `ToplantiOdasiSakarya.tsx`, `CoworkingSakarya.tsx`, `Hakkimizda.tsx` -- SEO basliklarinda marka adi
+- `supabase/functions/generate-content/index.ts` -- AI prompt'larda marka adi
+- `src/pages/AdminBlogEditor.tsx` -- Tarih/saat secici ve zamanla butonu
+- `src/pages/AdminBlog.tsx` -- Zamanlanmis durum gosterimi
+- `src/pages/Blog.tsx` -- Sorgu guncelleme
+- `src/pages/AdminFAQ.tsx` -- SSS'e zamanlama eklenmesi
+- `src/pages/SSS.tsx` -- Sorgu guncelleme
 
