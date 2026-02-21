@@ -6,7 +6,7 @@ import FAQSection from "@/components/FAQSection";
 import CTASection from "@/components/CTASection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { business } from "@/data/business";
+import { useBusinessData } from "@/hooks/useBusinessData";
 
 const rooms = [
   { name: "Küçük Toplantı Odası", capacity: "4 Kişi", price: "₺200/saat", features: ["TV ekran", "Whiteboard", "Wi-Fi"] },
@@ -20,7 +20,10 @@ const faqs = [
   { q: "Teknik ekipman dahil mi?", a: "Evet, tüm toplantı odalarımızda projeksiyon veya TV ekran ve Wi-Fi dahildir." },
 ];
 
-const ToplantiOdasiSakarya = () => (
+const ToplantiOdasiSakarya = () => {
+  const { whatsapp } = useBusinessData();
+
+  return (
   <Layout>
     <SEOHead
       title="Toplantı Odası Sakarya | Workhibrit Kiralık Toplantı Odası"
@@ -34,7 +37,7 @@ const ToplantiOdasiSakarya = () => (
         <h1 className="font-display text-4xl font-extrabold">Toplantı Odası Kiralama</h1>
         <p className="mt-4 text-lg text-primary-foreground/80">Sakarya'da profesyonel toplantı odalarını saatlik veya günlük kiralayın.</p>
         <Button size="lg" variant="secondary" className="mt-6" asChild>
-          <a href={`https://wa.me/${business.whatsapp}`} target="_blank" rel="noopener noreferrer">Rezervasyon Yapın</a>
+          <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer">Rezervasyon Yapın</a>
         </Button>
       </div>
     </section>
@@ -78,6 +81,7 @@ const ToplantiOdasiSakarya = () => (
     <FAQSection faqs={faqs} />
     <CTASection title="Toplantı Odası Rezervasyonu" subtitle="Profesyonel toplantılarınız için hemen yer ayırtın." />
   </Layout>
-);
+  );
+};
 
 export default ToplantiOdasiSakarya;

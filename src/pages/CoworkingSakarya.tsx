@@ -5,7 +5,7 @@ import SEOHead from "@/components/SEOHead";
 import FAQSection from "@/components/FAQSection";
 import CTASection from "@/components/CTASection";
 import { Button } from "@/components/ui/button";
-import { business } from "@/data/business";
+import { useBusinessData } from "@/hooks/useBusinessData";
 
 const features = [
   { icon: <Wifi className="h-5 w-5" />, title: "Yüksek Hızlı İnternet", desc: "Fiber altyapılı kesintisiz internet." },
@@ -20,11 +20,14 @@ const faqs = [
   { q: "Toplantı odası kullanabilir miyim?", a: "Evet, aylık paketlerde belirli saatler dahildir, ek saatler ücretlidir." },
 ];
 
-const CoworkingSakarya = () => (
+const CoworkingSakarya = () => {
+  const { whatsapp } = useBusinessData();
+
+  return (
   <Layout>
     <SEOHead
       title="Coworking Sakarya | Workhibrit Ortak Çalışma Alanı"
-      description="Sakarya'da coworking çalışma alanı. Yüksek hızlı internet, modern ekipman ve networking imkanı. Workhibrit coworking ile verimli çalışın."
+      description="Sakarya'da coworking ve ortak çalışma alanı. Modern, verimli çalışma ortamı. Workhibrit coworking space Sakarya."
       keywords="coworking sakarya, ortak çalışma alanı sakarya, coworking space sakarya"
       canonical="https://sakaryasanalofis.com/coworking-sakarya"
     />
@@ -34,7 +37,7 @@ const CoworkingSakarya = () => (
         <h1 className="font-display text-4xl font-extrabold">Coworking Sakarya</h1>
         <p className="mt-4 text-lg text-primary-foreground/80">Modern ve verimli ortak çalışma alanlarında işinizi büyütün.</p>
         <Button size="lg" variant="secondary" className="mt-6" asChild>
-          <a href={`https://wa.me/${business.whatsapp}`} target="_blank" rel="noopener noreferrer">Tur Rezervasyonu Yapın</a>
+          <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer">Tur Rezervasyonu Yapın</a>
         </Button>
       </div>
     </section>
@@ -94,6 +97,7 @@ const CoworkingSakarya = () => (
     <FAQSection faqs={faqs} />
     <CTASection title="Coworking Alanımızı Keşfedin" subtitle="Ücretsiz tur için hemen randevu alın." />
   </Layout>
-);
+  );
+};
 
 export default CoworkingSakarya;

@@ -3,7 +3,7 @@ export const business = {
   domain: "sakaryasanalofis.com",
   tagline: "Sakarya'da sanal ofis ve coworking hizmeti sunan yerel bir ofis çözümleri markasıdır.",
   phone: "+90 264 123 45 67",
-  whatsapp: "902641234567",
+  whatsapp: "905446347232",
   email: "info@sakaryasanalofis.com",
   address: {
     street: "Sakarya Ticaret Merkezi, Kat 3",

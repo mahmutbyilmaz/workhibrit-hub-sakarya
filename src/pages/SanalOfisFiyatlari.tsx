@@ -6,7 +6,7 @@ import FAQSection from "@/components/FAQSection";
 import CTASection from "@/components/CTASection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { business } from "@/data/business";
+import { useBusinessData } from "@/hooks/useBusinessData";
 
 const plans = [
   {
@@ -38,7 +38,10 @@ const faqs = [
   { q: "Fiyatlara KDV dahil mi?", a: "Belirtilen fiyatlar KDV hariçtir. Fatura kesilirken KDV eklenmektedir." },
 ];
 
-const SanalOfisFiyatlari = () => (
+const SanalOfisFiyatlari = () => {
+  const { whatsapp } = useBusinessData();
+
+  return (
   <Layout>
     <SEOHead
       title="Sanal Ofis Fiyatları 2025 | Workhibrit Sakarya"
@@ -80,7 +83,7 @@ const SanalOfisFiyatlari = () => (
                   ))}
                 </ul>
                 <Button className="mt-6 w-full" variant={plan.popular ? "default" : "outline"} asChild>
-                  <a href={`https://wa.me/${business.whatsapp}?text=Merhaba, ${plan.name} paketi hakkında bilgi almak istiyorum.`} target="_blank" rel="noopener noreferrer">
+                  <a href={`https://wa.me/${whatsapp}?text=Merhaba, ${plan.name} paketi hakkında bilgi almak istiyorum.`} target="_blank" rel="noopener noreferrer">
                     Hemen Başvurun
                   </a>
                 </Button>
@@ -101,6 +104,7 @@ const SanalOfisFiyatlari = () => (
     <FAQSection faqs={faqs} />
     <CTASection />
   </Layout>
-);
+  );
+};
 
 export default SanalOfisFiyatlari;
