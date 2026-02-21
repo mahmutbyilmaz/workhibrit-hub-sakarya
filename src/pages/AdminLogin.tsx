@@ -10,19 +10,31 @@ const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn } = useAuth();
+  const [isRegister, setIsRegister] = useState(false);
+  const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    const { error } = await signIn(email, password);
-    setIsLoading(false);
-    if (error) {
-      toast({ title: "Giriş başarısız", description: error.message, variant: "destructive" });
+    if (isRegister) {
+      const { error } = await signUp(email, password);
+      setIsLoading(false);
+      if (error) {
+        toast({ title: "Kayıt başarısız", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Kayıt başarılı", description: "Şimdi giriş yapabilirsiniz." });
+        setIsRegister(false);
+      }
     } else {
-      navigate("/admin");
+      const { error } = await signIn(email, password);
+      setIsLoading(false);
+      if (error) {
+        toast({ title: "Giriş başarısız", description: error.message, variant: "destructive" });
+      } else {
+        navigate("/admin");
+      }
     }
   };
 
@@ -52,8 +64,11 @@ const AdminLogin = () => {
               required
             />
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Giriş yapılıyor..." : "Giriş Yap"}
+              {isLoading ? "İşleniyor..." : isRegister ? "Kayıt Ol" : "Giriş Yap"}
             </Button>
+            <button type="button" className="w-full text-center text-sm text-muted-foreground hover:text-foreground" onClick={() => setIsRegister(!isRegister)}>
+              {isRegister ? "Zaten hesabınız var mı? Giriş yapın" : "Hesabınız yok mu? Kayıt olun"}
+            </button>
           </form>
         </CardContent>
       </Card>
