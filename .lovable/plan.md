@@ -1,30 +1,50 @@
 
 
-# Blog Yayınlama Deneyimini Iyilestirme
+# Admin Paneli Gelistirme: Sosyal Medya, Footer ve Logo Yonetimi
 
-## Sorun
-Blog yazilari olusturulurken varsayilan durum "Taslak" olarak ayarlaniyor. Yayinlamak icin editordeki kucuk dropdown'dan "Yayinla" secilmesi gerekiyor, ancak bu secici kolayca gozden kaciyor. Ayrica blog listesinden hizli yayinlama secenegi bulunmuyor.
+## Mevcut Durum
+- `site_settings` tablosunda telefon, e-posta, adres, WhatsApp, Instagram ve LinkedIn kayitlari zaten var
+- Ancak Twitter/X linki eksik ve footer'da sosyal medya ikonlari gorunmuyor
+- Header'daki logo sabit metin ("Workhibrit") olarak kodlanmis, degistirilemez
+- Admin ayarlar sayfasi sadece basit bir form, kategorilere ayrilmamis
 
 ## Yapilacaklar
 
-### 1. Blog Editorunde Belirgin Yayinla Butonu
-- Mevcut kucuk dropdown'u kaldirmak yerine, yanina buyuk ve renkli bir "Yayinla" / "Taslaga Al" toggle butonu eklenecek
-- Yazi taslak durumundaysa yesil "Yayinla" butonu, yayindaysa turuncu "Taslaga Al" butonu gorunecek
-- Kaydet butonunun yaninda durumu acikca gosteren bir Badge eklenecek
+### 1. Veritabani: Yeni Ayar Satirlari Ekleme
+- `site_settings` tablosuna `footer_twitter` ve `header_logo_url` satirlari eklenecek
+- Mevcut satirlar korunacak
 
-### 2. Blog Listesinde Hizli Yayinlama
-- `AdminBlog.tsx` sayfasindaki her blog satrina bir Switch (toggle) eklenecek
-- Bu switch ile listeden cikmadan tek tikla yayinla/taslaga al islemi yapilabilecek
-- Durum degistiginde aninda veritabaninda guncellenecek
+### 2. Admin Ayarlar Sayfasini Yeniden Yapilandirma
+Sayfa kartlara bolunecek:
 
-### 3. Varsayilan Durum Uyarisi
-- Yeni bir yazi kaydedilirken durum hala "Taslak" ise kullaniciya "Bu yazi taslak olarak kaydedilecek. Yayinlamak ister misiniz?" seklinde bir onay dialog'u gosterilecek
+**Iletisim Bilgileri Karti:** Telefon, E-posta, WhatsApp, Adres (mevcut alanlar)
+
+**Sosyal Medya Karti:** Instagram URL, LinkedIn URL, Twitter/X URL (yeni)
+
+**Logo Karti:** Mevcut logo on izlemesi, yeni logo yuklemek icin dosya secici (media bucket'a yuklenecek), URL olarak kaydedilecek
+
+### 3. Footer'a Sosyal Medya Ikonlari Ekleme
+- Footer iletisim bolumunun altina Instagram, LinkedIn ve Twitter/X ikonlari eklenecek
+- Linkleri `site_settings` tablosundan dinamik olarak cekilecek
+- Bos olan linkler icin ikon gosterilmeyecek
+
+### 4. Header Logosunu Dinamik Yapma
+- Header'daki sabit "Workhibrit" metni yerine, eger `header_logo_url` ayarlanmissa resim gosterilecek
+- Logo ayarlanmamissa mevcut metin logosu korunacak (fallback)
 
 ## Teknik Detaylar
 
-**Degisecek dosyalar:**
-- `src/pages/AdminBlogEditor.tsx` -- Belirgin yayinla butonu ve kaydetme oncesi taslak uyarisi eklenmesi
-- `src/pages/AdminBlog.tsx` -- Blog listesine hizli yayinla/taslaga al Switch bileseninin eklenmesi
+**Veritabani degisikligi:**
+- `site_settings` tablosuna 2 yeni satir INSERT edilecek: `footer_twitter`, `header_logo_url`
 
-**Veritabani degisikligi:** Gerekmiyor. Mevcut `status` alani (`draft` / `published`) zaten uygun sekilde calisiyor.
+**Degisecek dosyalar:**
+- `src/pages/AdminSettings.tsx` -- Kategorilere ayrilmis form, logo yukleme alani, Twitter/X alani eklenmesi
+- `src/components/Footer.tsx` -- Sosyal medya ikonlari (Instagram, LinkedIn, Twitter/X) eklenmesi
+- `src/components/Header.tsx` -- Dinamik logo destegi (resim veya metin fallback)
+- `src/hooks/useBusinessData.ts` -- Sosyal medya ve logo URL'lerini de dondurecek sekilde genisletilmesi
+
+**Logo yukleme akisi:**
+- Admin panelinde dosya secilecek
+- Mevcut `media` storage bucket'ina yuklenecek
+- Yuklenen dosyanin public URL'i `site_settings` tablosuna `header_logo_url` olarak kaydedilecek
 
