@@ -1,24 +1,15 @@
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { business } from "@/data/business";
-import { Phone, Mail, MapPin } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { Phone, Mail, MapPin, Instagram, Linkedin, Twitter } from "lucide-react";
+import { useBusinessData } from "@/hooks/useBusinessData";
 
 const Footer = () => {
-  const { data: settings } = useQuery({
-    queryKey: ["site_settings"],
-    queryFn: async () => {
-      const { data } = await supabase.from("site_settings" as any).select("key, value");
-      const map: Record<string, string> = {};
-      (data as unknown as Array<{ key: string; value: string }>)?.forEach((s) => (map[s.key] = s.value));
-      return map;
-    },
-    staleTime: 1000 * 60 * 5,
-  });
+  const { phone, email, address, instagram, linkedin, twitter, name } = useBusinessData();
 
-  const phone = settings?.footer_phone || business.phone;
-  const email = settings?.footer_email || business.email;
-  const address = settings?.footer_address || business.fullAddress;
+  const socialLinks = [
+    { url: instagram, icon: Instagram, label: "Instagram" },
+    { url: linkedin, icon: Linkedin, label: "LinkedIn" },
+    { url: twitter, icon: Twitter, label: "Twitter" },
+  ].filter((s) => s.url);
 
   return (
     <footer className="border-t bg-accent text-accent-foreground">
@@ -29,7 +20,23 @@ const Footer = () => {
             <span className="font-display text-xl font-extrabold text-primary">
               Work<span className="text-accent-foreground">hibrit</span>
             </span>
-            <p className="mt-3 text-sm opacity-70">{business.tagline}</p>
+            <p className="mt-3 text-sm opacity-70">Sakarya'da sanal ofis ve coworking hizmeti sunan yerel bir ofis çözümleri markasıdır.</p>
+            {socialLinks.length > 0 && (
+              <div className="mt-4 flex items-center gap-3">
+                {socialLinks.map((s) => (
+                  <a
+                    key={s.label}
+                    href={s.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={s.label}
+                    className="rounded-md p-2 opacity-70 transition-opacity hover:opacity-100"
+                  >
+                    <s.icon className="h-5 w-5" />
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Quick links */}
@@ -66,7 +73,7 @@ const Footer = () => {
         </div>
 
         <div className="mt-8 border-t border-accent-foreground/20 pt-6 text-center text-xs opacity-60">
-          © {new Date().getFullYear()} {business.name}. Tüm hakları saklıdır.
+          © {new Date().getFullYear()} {name}. Tüm hakları saklıdır.
         </div>
       </div>
     </footer>
