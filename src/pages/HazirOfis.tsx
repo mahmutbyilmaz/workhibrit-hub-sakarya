@@ -5,7 +5,7 @@ import SEOHead from "@/components/SEOHead";
 import FAQSection from "@/components/FAQSection";
 import CTASection from "@/components/CTASection";
 import { Button } from "@/components/ui/button";
-import { business } from "@/data/business";
+import { useBusinessData } from "@/hooks/useBusinessData";
 
 const benefits = [
   "Tam donanımlı özel ofis",
@@ -24,7 +24,10 @@ const faqs = [
   { q: "Ofis boyutları nelerdir?", a: "1 ile 10 kişilik farklı boyutlarda hazır ofis seçeneklerimiz mevcuttur." },
 ];
 
-const HazirOfis = () => (
+const HazirOfis = () => {
+  const { whatsapp } = useBusinessData();
+
+  return (
   <Layout>
     <SEOHead
       title="Hazır Ofis Sakarya | Workhibrit Kiralık Ofis"
@@ -38,7 +41,7 @@ const HazirOfis = () => (
         <h1 className="font-display text-4xl font-extrabold">Hazır Ofis Çözümleri</h1>
         <p className="mt-4 text-lg text-primary-foreground/80">Tam donanımlı, kullanıma hazır özel ofis alanları.</p>
         <Button size="lg" variant="secondary" className="mt-6" asChild>
-          <a href={`https://wa.me/${business.whatsapp}`} target="_blank" rel="noopener noreferrer">Ofis Turu Planlayın</a>
+          <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer">Ofis Turu Planlayın</a>
         </Button>
       </div>
     </section>
@@ -95,6 +98,7 @@ const HazirOfis = () => (
     <FAQSection faqs={faqs} />
     <CTASection title="Hazır Ofisinizi Seçin" subtitle="Size uygun ofis için ücretsiz tur randevusu alın." />
   </Layout>
-);
+  );
+};
 
 export default HazirOfis;

@@ -9,6 +9,7 @@ import FAQSection from "@/components/FAQSection";
 import CTASection from "@/components/CTASection";
 import { business, services as staticServices, testimonials as staticTestimonials, homepageFAQs } from "@/data/business";
 import { supabase } from "@/integrations/supabase/client";
+import { useBusinessData } from "@/hooks/useBusinessData";
 
 const iconMap: Record<string, React.ReactNode> = {
   Building2: <Building2 className="h-8 w-8" />,
@@ -21,6 +22,7 @@ type Service = { id: string; title: string; slug: string; description: string; i
 type Testimonial = { name: string; company: string; text: string; rating: number };
 
 const Index = () => {
+  const { whatsapp } = useBusinessData();
   // Fetch all homepage content blocks
   const { data: contentBlocks } = useQuery({
     queryKey: ["homepage_content"],
@@ -86,7 +88,7 @@ const Index = () => {
                 <Link to="/sanal-ofis-sakarya">Sanal Ofis Hizmeti</Link>
               </Button>
               <Button size="lg" variant="outline" className="border-accent-foreground/30 bg-transparent text-accent-foreground hover:bg-accent-foreground/10" asChild>
-                <a href={`https://wa.me/${business.whatsapp}`} target="_blank" rel="noopener noreferrer">
+                <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer">
                   Ücretsiz Danışmanlık
                 </a>
               </Button>

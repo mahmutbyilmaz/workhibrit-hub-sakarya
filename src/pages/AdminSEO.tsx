@@ -43,7 +43,7 @@ const AdminSEO = () => {
   const handleSave = async () => {
     setSaving(true);
     const promises = Object.entries(settings).map(([key, value]) =>
-      supabase.from("seo_settings").update({ value }).eq("key", key)
+      supabase.from("seo_settings").upsert({ key, value }, { onConflict: "key" })
     );
     await Promise.all(promises);
     setSaving(false);

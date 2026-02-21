@@ -6,6 +6,7 @@ import FAQSection from "@/components/FAQSection";
 import CTASection from "@/components/CTASection";
 import { Button } from "@/components/ui/button";
 import { business } from "@/data/business";
+import { useBusinessData } from "@/hooks/useBusinessData";
 
 const faqs = [
   { q: "Sanal ofis nedir?", a: "Sanal ofis, fiziksel bir mekan kiralamadan profesyonel bir iş adresi ve sekreterlik hizmeti almanızı sağlar." },
@@ -25,7 +26,10 @@ const benefits = [
   "7/24 destek hattı",
 ];
 
-const SanalOfisSakarya = () => (
+const SanalOfisSakarya = () => {
+  const { whatsapp } = useBusinessData();
+
+  return (
   <Layout>
     <SEOHead
       title="Sanal Ofis Sakarya | Workhibrit"
@@ -44,7 +48,7 @@ const SanalOfisSakarya = () => (
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-4">
             <Button size="lg" variant="secondary" asChild>
-              <a href={`https://wa.me/${business.whatsapp}`} target="_blank" rel="noopener noreferrer">Teklif Alın</a>
+              <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer">Teklif Alın</a>
             </Button>
             <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10" asChild>
               <Link to="/sanal-ofis-fiyatlari">Fiyatları İnceleyin</Link>
@@ -112,6 +116,7 @@ const SanalOfisSakarya = () => (
     <FAQSection faqs={faqs} />
     <CTASection title="Sanal Ofis İçin Hemen Başvurun" subtitle="Sakarya'da prestijli bir iş adresine sahip olmak için bize ulaşın." />
   </Layout>
-);
+  );
+};
 
 export default SanalOfisSakarya;
