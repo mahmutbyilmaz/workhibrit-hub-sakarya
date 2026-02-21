@@ -26,15 +26,15 @@ const AdminSettings = () => {
     queryKey: ["site_settings"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("site_settings")
+        .from("site_settings" as any)
         .select("key, value");
       if (error) throw error;
-      return data ?? [];
+      return (data as unknown as Array<{ key: string; value: string }>) ?? [];
     },
   });
 
   useEffect(() => {
-    if (settings) {
+    if (settings && Array.isArray(settings)) {
       const map: Record<string, string> = {};
       settings.forEach((s) => (map[s.key] = s.value));
       setValues(map);
@@ -45,7 +45,7 @@ const AdminSettings = () => {
     mutationFn: async () => {
       const promises = settingFields.map((f) =>
         supabase
-          .from("site_settings")
+          .from("site_settings" as any)
           .update({ value: values[f.key] || "" })
           .eq("key", f.key)
       );

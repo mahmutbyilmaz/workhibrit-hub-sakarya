@@ -8,9 +8,9 @@ const Footer = () => {
   const { data: settings } = useQuery({
     queryKey: ["site_settings"],
     queryFn: async () => {
-      const { data } = await supabase.from("site_settings").select("key, value");
+      const { data } = await supabase.from("site_settings" as any).select("key, value");
       const map: Record<string, string> = {};
-      data?.forEach((s) => (map[s.key] = s.value));
+      (data as unknown as Array<{ key: string; value: string }>)?.forEach((s) => (map[s.key] = s.value));
       return map;
     },
     staleTime: 1000 * 60 * 5,
