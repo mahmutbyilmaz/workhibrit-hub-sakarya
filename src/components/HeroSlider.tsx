@@ -53,7 +53,7 @@ const HeroSlider = ({ slides }: HeroSliderProps) => {
   return (
     <section className="relative bg-secondary py-12 lg:py-16">
       <div className="container">
-        <div className="relative" ref={emblaRef}>
+        <div className="relative overflow-hidden" ref={emblaRef}>
           <div className="flex">
             {slides.map((slide, i) => (
               <div key={i} className="min-w-0 shrink-0 grow-0 basis-full px-4">
