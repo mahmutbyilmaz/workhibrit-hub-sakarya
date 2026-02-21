@@ -31,11 +31,11 @@ const AdminContent = () => {
         .in("block_type", ["services", "testimonials", "pricing"])
         .order("sort_order");
       if (error) throw error;
-      return data ?? [];
+      return (data as unknown as Array<{ id: string; block_type: string; content: any }>) ?? [];
     },
   });
 
-  const getBlock = (type: string) => blocks?.find((b) => b.block_type === type);
+  const getBlock = (type: string) => Array.isArray(blocks) ? blocks.find((b) => b.block_type === type) : undefined;
 
   return (
     <AdminLayout>
