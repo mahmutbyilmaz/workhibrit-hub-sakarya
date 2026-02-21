@@ -1,19 +1,30 @@
 
+# Harita Sorunu Cozumu
 
-# WhatsApp Ikonu ve Footer Duzeltmeleri
+## Sorun
+Ana sayfa (`Index.tsx`) harita icin veritabanindaki ayarlari degil, kodda sabit yazilmis eski Google Maps linkini kullaniyor. Ayrica veritabaninda `maps_embed` anahtari bulunmuyor, bu da admin panelinden yapilan guncellemenin kaydedilmedigini gosteriyor.
 
-## Degisiklik 1: WhatsApp Butonu - Yesil ve Belirgin
-`src/components/WhatsAppButton.tsx` dosyasindaki buton stili guncellenecek:
-- Arka plan rengi yesil (#25D366 - resmi WhatsApp yesili) yapilacak
-- Boyut buyutulecek (h-14 w-14 yerine h-16 w-16)
-- Ikon boyutu buyutulecek
-- Animasyonlu pulse efekti eklenecek (dikkat cekici olması icin)
-- Golge arttirilacak
+## Cozum
 
-## Degisiklik 2: Footer E-posta Kaldirilma
-`src/components/Footer.tsx` dosyasindaki iletisim bolumunden e-posta satiri kaldirilacak.
+### 1. Ana sayfadaki haritayi dinamik hale getir
+`src/pages/Index.tsx` dosyasinda harita bolumu su anda sabit `business.mapsEmbed` degerini kullaniyor. Bunu `useBusinessData` hook'undan veya dogrudan veritabanindan cekilecek sekilde guncelleyecegiz.
+
+### 2. useBusinessData hook'una harita verileri ekle
+`src/hooks/useBusinessData.ts` dosyasina `mapsEmbed` ve `mapsLink` alanlari eklenecek, boylece tum sayfalarda veritabanindan gelen deger oncelikli olacak.
+
+### 3. Admin panelinde kayit kontrolu
+Admin SEO sayfasinda `maps_embed` ve `maps_link` alanlari zaten tanimli. Kullanicinin bu alanlari admin panelinden tekrar kaydetmesi gerekebilir.
+
+## Teknik Detaylar
+
+**Dosya 1: `src/hooks/useBusinessData.ts`**
+- `mapsEmbed` alani eklenecek: `settings?.maps_embed || business.mapsEmbed`
+- `mapsLink` alani eklenecek: `settings?.maps_link || business.mapsLink`
+
+**Dosya 2: `src/pages/Index.tsx`**
+- `useBusinessData()` hook'undan `mapsEmbed` alinacak
+- Harita iframe'indeki `src={business.mapsEmbed}` ifadesi `src={mapsEmbed}` olarak degistirilecek
 
 ## Degisecek Dosyalar
-1. `src/components/WhatsAppButton.tsx`
-2. `src/components/Footer.tsx`
-
+1. `src/hooks/useBusinessData.ts`
+2. `src/pages/Index.tsx`
