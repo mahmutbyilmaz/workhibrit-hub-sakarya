@@ -28,8 +28,8 @@ const AdminContent = () => {
       const { data, error } = await supabase
         .from("page_content")
         .select("*")
-        .eq("page_slug", "homepage")
-        .in("block_type", ["services", "testimonials", "pricing", "hero_slider"])
+        .in("page_slug", ["homepage", "sanal-ofis-fiyatlari"])
+        .in("block_type", ["services", "testimonials", "pricing", "hero_slider", "pricing_plans"])
         .order("sort_order");
       if (error) throw error;
       return (data as unknown as Array<{ id: string; block_type: string; content: any }>) ?? [];
@@ -45,11 +45,12 @@ const AdminContent = () => {
         <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Yükleniyor...</div>
       ) : (
         <Tabs defaultValue="slider">
-          <TabsList className="mb-4">
+          <TabsList className="mb-4 flex-wrap">
             <TabsTrigger value="slider">Slider</TabsTrigger>
             <TabsTrigger value="services">Hizmetler</TabsTrigger>
             <TabsTrigger value="testimonials">Müşteri Yorumları</TabsTrigger>
             <TabsTrigger value="pricing">Fiyat Tablosu</TabsTrigger>
+            <TabsTrigger value="pricing_plans">Fiyat Paketleri</TabsTrigger>
           </TabsList>
           <TabsContent value="slider">
             <SliderEditor block={getBlock("hero_slider")} queryClient={queryClient} />
@@ -62,6 +63,9 @@ const AdminContent = () => {
           </TabsContent>
           <TabsContent value="pricing">
             <PricingEditor block={getBlock("pricing")} queryClient={queryClient} />
+          </TabsContent>
+          <TabsContent value="pricing_plans">
+            <PricingPlansEditor block={getBlock("pricing_plans")} queryClient={queryClient} />
           </TabsContent>
         </Tabs>
       )}
@@ -353,6 +357,115 @@ const SliderEditor = ({ block, queryClient }: { block: any; queryClient: any }) 
           </div>
         ))}
         {items.length === 0 && <p className="text-sm text-muted-foreground">Henüz slide eklenmedi.</p>}
+        <Button onClick={() => upsertMutation.mutate()} disabled={upsertMutation.isPending}>
+          {upsertMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+          Kaydet
+        </Button>
+      </CardContent>
+    </Card>
+  );
+};
+
+// ─── Pricing Plans Editor (Sanal Ofis Fiyatları) ───
+type PlanItem = { name: string; price: string; period: string; features: string[]; popular: boolean };
+
+const PricingPlansEditor = ({ block, queryClient }: { block: any; queryClient: any }) => {
+  const [items, setItems] = useState<PlanItem[]>(() => {
+    const content = block?.content;
+    return Array.isArray(content) ? content : [];
+  });
+
+  const upsertMutation = useMutation({
+    mutationFn: async () => {
+      if (block?.id) {
+        const { error } = await supabase.from("page_content").update({ content: JSON.parse(JSON.stringify(items)) }).eq("id", block.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("page_content").insert({ page_slug: "sanal-ofis-fiyatlari", block_type: "pricing_plans", sort_order: 0, content: JSON.parse(JSON.stringify(items)) });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["homepage_content"] }); toast.success("Fiyat paketleri kaydedildi"); },
+    onError: () => toast.error("Kaydetme başarısız"),
+  });
+
+  const updateItem = (i: number, key: keyof PlanItem, val: any) => {
+    const next = [...items];
+    (next[i] as any)[key] = val;
+    setItems(next);
+  };
+
+  const updateFeature = (pi: number, fi: number, val: string) => {
+    const next = [...items];
+    next[pi].features[fi] = val;
+    setItems(next);
+  };
+
+  const addFeature = (pi: number) => {
+    const next = [...items];
+    next[pi].features.push("");
+    setItems(next);
+  };
+
+  const removeFeature = (pi: number, fi: number) => {
+    const next = [...items];
+    next[pi].features = next[pi].features.filter((_, idx) => idx !== fi);
+    setItems(next);
+  };
+
+  const addPlan = () => setItems([...items, { name: "", price: "", period: "/ay", features: [""], popular: false }]);
+  const removePlan = (i: number) => setItems(items.filter((_, idx) => idx !== i));
+
+  const movePlan = (from: number, dir: number) => {
+    const to = from + dir;
+    if (to < 0 || to >= items.length) return;
+    const next = [...items];
+    [next[from], next[to]] = [next[to], next[from]];
+    setItems(next);
+  };
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Sanal Ofis Fiyat Paketleri</CardTitle>
+        <Button size="sm" variant="outline" onClick={addPlan}><Plus className="mr-1 h-4 w-4" /> Paket Ekle</Button>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {items.map((item, i) => (
+          <div key={i} className="space-y-3 rounded-lg border p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="flex flex-col">
+                  <button onClick={() => movePlan(i, -1)} disabled={i === 0} className="text-xs text-muted-foreground hover:text-foreground disabled:opacity-30">▲</button>
+                  <button onClick={() => movePlan(i, 1)} disabled={i === items.length - 1} className="text-xs text-muted-foreground hover:text-foreground disabled:opacity-30">▼</button>
+                </div>
+                <span className="text-sm font-bold">Paket #{i + 1}</span>
+                {item.popular && <span className="rounded bg-primary px-2 py-0.5 text-xs text-primary-foreground">Popüler</span>}
+              </div>
+              <Button size="icon" variant="ghost" onClick={() => removePlan(i)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div><Label>Paket Adı</Label><Input value={item.name} onChange={(e) => updateItem(i, "name", e.target.value)} /></div>
+              <div><Label>Fiyat</Label><Input value={item.price} onChange={(e) => updateItem(i, "price", e.target.value)} placeholder="₺750" /></div>
+              <div><Label>Periyod</Label><Input value={item.period} onChange={(e) => updateItem(i, "period", e.target.value)} placeholder="/ay" /></div>
+            </div>
+            <div className="flex items-center gap-2">
+              <input type="checkbox" checked={item.popular} onChange={(e) => updateItem(i, "popular", e.target.checked)} className="rounded" />
+              <Label className="cursor-pointer">En Popüler olarak işaretle</Label>
+            </div>
+            <div>
+              <Label>Özellikler</Label>
+              {item.features.map((f, fi) => (
+                <div key={fi} className="mt-1 flex items-center gap-1">
+                  <Input value={f} onChange={(e) => updateFeature(i, fi, e.target.value)} placeholder="Özellik..." />
+                  <Button size="icon" variant="ghost" onClick={() => removeFeature(i, fi)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
+                </div>
+              ))}
+              <Button size="sm" variant="ghost" className="mt-1" onClick={() => addFeature(i)}><Plus className="mr-1 h-3 w-3" /> Özellik Ekle</Button>
+            </div>
+          </div>
+        ))}
+        {items.length === 0 && <p className="text-sm text-muted-foreground">Henüz paket eklenmedi.</p>}
         <Button onClick={() => upsertMutation.mutate()} disabled={upsertMutation.isPending}>
           {upsertMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
           Kaydet

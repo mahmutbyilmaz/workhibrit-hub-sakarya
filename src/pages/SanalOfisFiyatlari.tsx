@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { CheckCircle } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
 import SEOHead from "@/components/SEOHead";
 import FAQSection from "@/components/FAQSection";
@@ -7,29 +8,12 @@ import CTASection from "@/components/CTASection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useBusinessData } from "@/hooks/useBusinessData";
+import { supabase } from "@/integrations/supabase/client";
 
-const plans = [
-  {
-    name: "Başlangıç",
-    price: "₺750",
-    period: "/ay",
-    features: ["Prestijli iş adresi", "Posta teslim alma", "Şirket kuruluş desteği", "Aylık sözleşme"],
-    popular: false,
-  },
-  {
-    name: "Profesyonel",
-    price: "₺1.250",
-    period: "/ay",
-    features: ["Prestijli iş adresi", "Posta & kargo yönetimi", "Telefon yönlendirme", "2 saat toplantı odası/ay", "Şirket kuruluş desteği"],
-    popular: true,
-  },
-  {
-    name: "Premium",
-    price: "₺1.750",
-    period: "/ay",
-    features: ["Prestijli iş adresi", "Posta & kargo yönetimi", "Telefon yönlendirme", "5 saat toplantı odası/ay", "Coworking erişimi (5 gün/ay)", "Öncelikli destek"],
-    popular: false,
-  },
+const defaultPlans = [
+  { name: "Başlangıç", price: "₺750", period: "/ay", features: ["Prestijli iş adresi", "Posta teslim alma", "Şirket kuruluş desteği", "Aylık sözleşme"], popular: false },
+  { name: "Profesyonel", price: "₺1.250", period: "/ay", features: ["Prestijli iş adresi", "Posta & kargo yönetimi", "Telefon yönlendirme", "2 saat toplantı odası/ay", "Şirket kuruluş desteği"], popular: true },
+  { name: "Premium", price: "₺1.750", period: "/ay", features: ["Prestijli iş adresi", "Posta & kargo yönetimi", "Telefon yönlendirme", "5 saat toplantı odası/ay", "Coworking erişimi (5 gün/ay)", "Öncelikli destek"], popular: false },
 ];
 
 const faqs = [
@@ -40,6 +24,22 @@ const faqs = [
 
 const SanalOfisFiyatlari = () => {
   const { whatsapp } = useBusinessData();
+
+  const { data: dbPlans } = useQuery({
+    queryKey: ["pricing_plans"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("page_content")
+        .select("content")
+        .eq("page_slug", "sanal-ofis-fiyatlari")
+        .eq("block_type", "pricing_plans")
+        .single();
+      if (error || !data) return null;
+      return data.content as unknown as typeof defaultPlans;
+    },
+  });
+
+  const plans = Array.isArray(dbPlans) && dbPlans.length > 0 ? dbPlans : defaultPlans;
 
   return (
   <Layout>
