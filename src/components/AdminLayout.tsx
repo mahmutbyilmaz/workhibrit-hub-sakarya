@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LayoutDashboard, FileText, HelpCircle, Image, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, FileText, HelpCircle, Image, Settings, LogOut, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -8,6 +8,7 @@ const sidebarLinks = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "Blog Yazıları", href: "/admin/blog", icon: FileText },
   { label: "SSS Yönetimi", href: "/admin/faq", icon: HelpCircle },
+  { label: "Mesajlar", href: "/admin/messages", icon: MessageSquare },
   { label: "Medya", href: "/admin/media", icon: Image },
   { label: "SEO Ayarları", href: "/admin/seo", icon: Settings },
 ];
