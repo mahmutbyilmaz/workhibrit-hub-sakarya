@@ -27,9 +27,10 @@ interface HeroSliderProps {
 }
 
 const HeroSlider = ({ slides }: HeroSliderProps) => {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [
-    Autoplay({ delay: 5000, stopOnInteraction: false }),
-  ]);
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    { loop: true, duration: 30 },
+    [Autoplay({ delay: 5000, stopOnInteraction: false })],
+  );
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const onSelect = useCallback(() => {
@@ -58,10 +59,13 @@ const HeroSlider = ({ slides }: HeroSliderProps) => {
             {slides.map((slide, i) => (
               <div key={i} className="min-w-0 shrink-0 grow-0 basis-full px-4">
                 <div
-                  className="mx-auto flex max-w-3xl flex-col items-center text-center"
+                  className={cn(
+                    "mx-auto flex max-w-3xl flex-col items-center text-center transition-all duration-500",
+                    i === selectedIndex ? "opacity-100 scale-100" : "opacity-40 scale-95"
+                  )}
                   style={slide.bgImage ? { backgroundImage: `url(${slide.bgImage})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
                 >
-                  <div className="mb-4 rounded-xl bg-primary/10 p-4 text-primary">
+                  <div className="mb-4 rounded-xl bg-primary/10 p-4 text-primary transition-transform duration-500 group-hover:scale-110">
                     {iconMap[slide.icon] ?? <Building2 className="h-10 w-10" />}
                   </div>
                   <h3 className="font-display text-2xl font-bold lg:text-3xl">{slide.title}</h3>
