@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Building2, Users, Presentation, DoorOpen, Star, CheckCircle, Shield, Clock } from "lucide-react";
+import { Building2, Users, Presentation, DoorOpen, Star } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -45,21 +45,21 @@ const Index = () => {
       />
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-primary py-20 text-primary-foreground lg:py-28">
+      <section className="relative overflow-hidden bg-accent py-20 text-accent-foreground lg:py-28">
         <div className="container relative z-10">
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="font-display text-4xl font-extrabold leading-tight lg:text-5xl">
               Sakarya'da Profesyonel<br />
-              <span className="text-accent">Ofis Çözümleri</span>
+              <span className="text-primary">Ofis Çözümleri</span>
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-primary-foreground/80">
+            <p className="mx-auto mt-6 max-w-2xl text-lg opacity-80">
               {business.name}, {business.tagline}
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-              <Button size="lg" variant="secondary" asChild>
+              <Button size="lg" asChild>
                 <Link to="/sanal-ofis-sakarya">Sanal Ofis Hizmeti</Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10" asChild>
+              <Button size="lg" variant="outline" className="border-accent-foreground/30 text-accent-foreground hover:bg-accent-foreground/10" asChild>
                 <a href={`https://wa.me/${business.whatsapp}`} target="_blank" rel="noopener noreferrer">
                   Ücretsiz Danışmanlık
                 </a>
@@ -67,23 +67,18 @@ const Index = () => {
             </div>
           </div>
         </div>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(215_80%_60%/0.3),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(38_92%_50%/0.15),transparent_60%)]" />
       </section>
 
-      {/* Trust bar */}
-      <section className="border-b bg-secondary py-6">
-        <div className="container flex flex-wrap items-center justify-center gap-8 text-center">
-          {[
-            { icon: <Clock className="h-5 w-5 text-primary" />, label: `${business.stats.years}+ Yıllık Deneyim` },
-            { icon: <Users className="h-5 w-5 text-primary" />, label: `${business.stats.customers}+ Mutlu Müşteri` },
-            { icon: <Shield className="h-5 w-5 text-primary" />, label: "Güvenli & Yasal" },
-            { icon: <CheckCircle className="h-5 w-5 text-primary" />, label: `${business.stats.offices}+ Ofis Çözümü` },
-          ].map((item, i) => (
-            <div key={i} className="flex items-center gap-2 text-sm font-medium text-foreground">
-              {item.icon}
-              {item.label}
-            </div>
-          ))}
+      {/* Trust Statement */}
+      <section className="border-b bg-accent py-5">
+        <div className="container flex flex-col items-center justify-center gap-3 text-center sm:flex-row sm:gap-6">
+          <p className="font-display text-sm font-bold tracking-wide text-accent-foreground sm:text-base">
+            Sakarya'nın Güvenilir Ofis Çözüm Ortağı
+          </p>
+          <Button size="sm" variant="secondary" asChild>
+            <Link to="/hakkimizda">Bizi Tanıyın →</Link>
+          </Button>
         </div>
       </section>
 
