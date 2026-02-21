@@ -9,12 +9,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Save, Loader2, Plus, Trash2, Star } from "lucide-react";
+import { Save, Loader2, Plus, Trash2, Star, GripVertical } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type Service = { id: string; title: string; slug: string; description: string; icon: string; price: string; period: string };
 type Testimonial = { name: string; company: string; text: string; rating: number };
 type PricingRow = string[];
+type SlideItem = { title: string; description: string; buttonText: string; buttonLink: string; icon: string; bgImage: string };
 
 const iconOptions = ["Building2", "Users", "Presentation", "DoorOpen"];
 
@@ -28,7 +29,7 @@ const AdminContent = () => {
         .from("page_content")
         .select("*")
         .eq("page_slug", "homepage")
-        .in("block_type", ["services", "testimonials", "pricing"])
+        .in("block_type", ["services", "testimonials", "pricing", "hero_slider"])
         .order("sort_order");
       if (error) throw error;
       return (data as unknown as Array<{ id: string; block_type: string; content: any }>) ?? [];
@@ -43,12 +44,16 @@ const AdminContent = () => {
       {isLoading ? (
         <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Yükleniyor...</div>
       ) : (
-        <Tabs defaultValue="services">
+        <Tabs defaultValue="slider">
           <TabsList className="mb-4">
+            <TabsTrigger value="slider">Slider</TabsTrigger>
             <TabsTrigger value="services">Hizmetler</TabsTrigger>
             <TabsTrigger value="testimonials">Müşteri Yorumları</TabsTrigger>
             <TabsTrigger value="pricing">Fiyat Tablosu</TabsTrigger>
           </TabsList>
+          <TabsContent value="slider">
+            <SliderEditor block={getBlock("hero_slider")} queryClient={queryClient} />
+          </TabsContent>
           <TabsContent value="services">
             <ServicesEditor block={getBlock("services")} queryClient={queryClient} />
           </TabsContent>
@@ -261,6 +266,95 @@ const PricingEditor = ({ block, queryClient }: { block: any; queryClient: any })
         </div>
         <Button className="mt-4" onClick={() => mutation.mutate()} disabled={mutation.isPending}>
           {mutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+          Kaydet
+        </Button>
+      </CardContent>
+    </Card>
+  );
+};
+
+// ─── Slider Editor ───
+const SliderEditor = ({ block, queryClient }: { block: any; queryClient: any }) => {
+  const [items, setItems] = useState<SlideItem[]>(() => {
+    const content = block?.content;
+    return Array.isArray(content) ? content : [];
+  });
+
+  const upsertMutation = useMutation({
+    mutationFn: async () => {
+      if (block?.id) {
+        const { error } = await supabase
+          .from("page_content")
+          .update({ content: JSON.parse(JSON.stringify(items)) })
+          .eq("id", block.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("page_content")
+          .insert({ page_slug: "homepage", block_type: "hero_slider", sort_order: 0, content: JSON.parse(JSON.stringify(items)) });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["homepage_content"] }); toast.success("Slider kaydedildi"); },
+    onError: () => toast.error("Kaydetme başarısız"),
+  });
+
+  const update = (i: number, key: keyof SlideItem, val: string) => {
+    const next = [...items];
+    (next[i] as any)[key] = val;
+    setItems(next);
+  };
+
+  const addItem = () => setItems([...items, { title: "", description: "", buttonText: "Detaylar", buttonLink: "/", icon: "Building2", bgImage: "" }]);
+  const removeItem = (i: number) => setItems(items.filter((_, idx) => idx !== i));
+  const moveItem = (from: number, dir: number) => {
+    const to = from + dir;
+    if (to < 0 || to >= items.length) return;
+    const next = [...items];
+    [next[from], next[to]] = [next[to], next[from]];
+    setItems(next);
+  };
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Ana Sayfa Slider</CardTitle>
+        <Button size="sm" variant="outline" onClick={addItem}><Plus className="mr-1 h-4 w-4" /> Slide Ekle</Button>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {items.map((item, i) => (
+          <div key={i} className="space-y-3 rounded-lg border p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="flex flex-col">
+                  <button onClick={() => moveItem(i, -1)} disabled={i === 0} className="text-xs text-muted-foreground hover:text-foreground disabled:opacity-30">▲</button>
+                  <button onClick={() => moveItem(i, 1)} disabled={i === items.length - 1} className="text-xs text-muted-foreground hover:text-foreground disabled:opacity-30">▼</button>
+                </div>
+                <span className="text-sm font-bold">Slide #{i + 1}</span>
+              </div>
+              <Button size="icon" variant="ghost" onClick={() => removeItem(i)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div><Label>Başlık</Label><Input value={item.title} onChange={(e) => update(i, "title", e.target.value)} /></div>
+              <div>
+                <Label>İkon</Label>
+                <Select value={item.icon} onValueChange={(v) => update(i, "icon", v)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {iconOptions.map((ic) => <SelectItem key={ic} value={ic}>{ic}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div><Label>Buton Metni</Label><Input value={item.buttonText} onChange={(e) => update(i, "buttonText", e.target.value)} /></div>
+              <div><Label>Buton Linki</Label><Input value={item.buttonLink} onChange={(e) => update(i, "buttonLink", e.target.value)} /></div>
+              <div className="sm:col-span-2"><Label>Arka Plan Resmi (URL, opsiyonel)</Label><Input value={item.bgImage} onChange={(e) => update(i, "bgImage", e.target.value)} placeholder="https://..." /></div>
+            </div>
+            <div><Label>Açıklama</Label><Textarea value={item.description} onChange={(e) => update(i, "description", e.target.value)} rows={2} /></div>
+          </div>
+        ))}
+        {items.length === 0 && <p className="text-sm text-muted-foreground">Henüz slide eklenmedi.</p>}
+        <Button onClick={() => upsertMutation.mutate()} disabled={upsertMutation.isPending}>
+          {upsertMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
           Kaydet
         </Button>
       </CardContent>

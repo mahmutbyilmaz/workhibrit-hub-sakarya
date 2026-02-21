@@ -7,6 +7,7 @@ import Layout from "@/components/Layout";
 import SEOHead from "@/components/SEOHead";
 import FAQSection from "@/components/FAQSection";
 import CTASection from "@/components/CTASection";
+import HeroSlider, { type Slide } from "@/components/HeroSlider";
 import { business, services as staticServices, testimonials as staticTestimonials, homepageFAQs } from "@/data/business";
 import { supabase } from "@/integrations/supabase/client";
 import { useBusinessData } from "@/hooks/useBusinessData";
@@ -31,7 +32,7 @@ const Index = () => {
         .from("page_content")
         .select("block_type, content")
         .eq("page_slug", "homepage")
-        .in("block_type", ["services", "testimonials", "pricing"])
+        .in("block_type", ["services", "testimonials", "pricing", "hero_slider"])
         .order("sort_order");
       if (error) throw error;
       const map: Record<string, any> = {};
@@ -61,6 +62,8 @@ const Index = () => {
     ? contentBlocks.testimonials : staticTestimonials;
   const pricingRows: string[][] = (contentBlocks?.pricing && Array.isArray(contentBlocks.pricing))
     ? contentBlocks.pricing : [];
+  const sliderSlides: Slide[] = (contentBlocks?.hero_slider && Array.isArray(contentBlocks.hero_slider))
+    ? contentBlocks.hero_slider : [];
   const displayFaqs = dbFaqs && dbFaqs.length > 0 ? dbFaqs : homepageFAQs;
 
   return (
@@ -97,6 +100,9 @@ const Index = () => {
         </div>
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(38_92%_50%/0.15),transparent_60%)]" />
       </section>
+
+      {/* Hero Slider */}
+      {sliderSlides.length > 0 && <HeroSlider slides={sliderSlides} />}
 
       {/* Trust Statement */}
       <section className="border-b bg-accent py-5">
