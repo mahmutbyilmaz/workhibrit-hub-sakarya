@@ -1,15 +1,56 @@
 import { useParams, Link } from "react-router-dom";
 import { Calendar, ArrowLeft } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
 import SEOHead from "@/components/SEOHead";
 import FAQSection from "@/components/FAQSection";
 import CTASection from "@/components/CTASection";
 import { ArticleSchema } from "@/components/JsonLd";
-import { blogPosts } from "@/data/business";
+import { supabase } from "@/integrations/supabase/client";
 
 const BlogPost = () => {
   const { slug } = useParams();
-  const post = blogPosts.find((p) => p.slug === slug);
+
+  const { data: post, isLoading } = useQuery({
+    queryKey: ["blog_post", slug],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .select("*")
+        .eq("slug", slug!)
+        .eq("status", "published")
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!slug,
+  });
+
+  const { data: relatedPosts } = useQuery({
+    queryKey: ["blog_related", slug],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .select("slug, title")
+        .eq("status", "published")
+        .neq("slug", slug!)
+        .order("created_at", { ascending: false })
+        .limit(3);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!slug,
+  });
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="container py-20 text-center">
+          <p className="text-muted-foreground">Yükleniyor...</p>
+        </div>
+      </Layout>
+    );
+  }
 
   if (!post) {
     return (
@@ -22,15 +63,24 @@ const BlogPost = () => {
     );
   }
 
+  const faqs = Array.isArray(post.faqs)
+    ? (post.faqs as Array<{ q: string; a: string }>)
+    : [];
+
   return (
     <Layout>
       <SEOHead
-        title={post.metaTitle}
-        description={post.metaDescription}
-        keywords={post.category}
+        title={post.meta_title || post.title}
+        description={post.meta_description || post.excerpt || ""}
+        keywords={post.category || ""}
         canonical={`https://sakaryasanalofis.com/blog/${post.slug}`}
       />
-      <ArticleSchema title={post.title} description={post.metaDescription} date={post.date} slug={post.slug} />
+      <ArticleSchema
+        title={post.title}
+        description={post.meta_description || post.excerpt || ""}
+        date={post.created_at}
+        slug={post.slug}
+      />
 
       <article>
         <section className="bg-primary py-16 text-primary-foreground">
@@ -39,42 +89,48 @@ const BlogPost = () => {
               <ArrowLeft className="h-4 w-4" />
               Blog'a dön
             </Link>
-            <span className="mb-3 inline-block rounded bg-primary-foreground/20 px-2 py-1 text-xs font-medium">{post.category}</span>
+            {post.category && (
+              <span className="mb-3 inline-block rounded bg-primary-foreground/20 px-2 py-1 text-xs font-medium">{post.category}</span>
+            )}
             <h1 className="font-display text-3xl font-extrabold lg:text-4xl">{post.title}</h1>
             <div className="mt-4 flex items-center gap-2 text-sm text-primary-foreground/70">
               <Calendar className="h-4 w-4" />
-              {new Date(post.date).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })}
+              {new Date(post.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })}
             </div>
           </div>
         </section>
+
+        {post.featured_image && (
+          <div className="container max-w-3xl py-8">
+            <img src={post.featured_image} alt={post.title} className="w-full rounded-lg object-cover" />
+          </div>
+        )}
 
         <section className="py-12">
           <div
             className="container prose prose-slate max-w-3xl prose-headings:font-display"
-            dangerouslySetInnerHTML={{ __html: post.content }}
+            dangerouslySetInnerHTML={{ __html: post.content || "" }}
           />
         </section>
 
-        {post.faqs && post.faqs.length > 0 && (
-          <FAQSection faqs={post.faqs} title="Bu Yazı Hakkında SSS" />
+        {faqs.length > 0 && (
+          <FAQSection faqs={faqs} title="Bu Yazı Hakkında SSS" />
         )}
 
-        {/* Related posts */}
-        <section className="border-t py-8">
-          <div className="container max-w-3xl">
-            <h3 className="mb-4 font-display font-bold">İlgili Yazılar</h3>
-            <div className="flex flex-wrap gap-4">
-              {blogPosts
-                .filter((p) => p.slug !== post.slug)
-                .slice(0, 3)
-                .map((p) => (
+        {relatedPosts && relatedPosts.length > 0 && (
+          <section className="border-t py-8">
+            <div className="container max-w-3xl">
+              <h3 className="mb-4 font-display font-bold">İlgili Yazılar</h3>
+              <div className="flex flex-wrap gap-4">
+                {relatedPosts.map((p) => (
                   <Link key={p.slug} to={`/blog/${p.slug}`} className="text-sm text-primary hover:underline">
                     {p.title} →
                   </Link>
                 ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
       </article>
 
       <CTASection />
