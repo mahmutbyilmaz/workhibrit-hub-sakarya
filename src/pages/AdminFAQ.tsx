@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import AdminLayout from "@/components/AdminLayout";
+import AIFAQGenerator from "@/components/AIFAQGenerator";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -103,41 +104,44 @@ const AdminFAQ = () => {
     <AdminLayout>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold">SSS Yönetimi</h1>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={openNew}><Plus className="mr-2 h-4 w-4" />Yeni Soru</Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle>{editId ? "Soruyu Düzenle" : "Yeni Soru Ekle"}</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <Input placeholder="Soru" value={form.question} onChange={(e) => setForm({ ...form, question: e.target.value })} />
-              <Textarea placeholder="Cevap" rows={4} value={form.answer} onChange={(e) => setForm({ ...form, answer: e.target.value })} />
-              <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {categories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <div>
-                <p className="mb-2 text-sm font-medium">Sayfalar</p>
-                <div className="space-y-2">
-                  {pages.map((p) => (
-                    <label key={p.value} className="flex items-center gap-2 text-sm">
-                      <Checkbox
-                        checked={form.page_assignments.includes(p.value)}
-                        onCheckedChange={() => togglePage(p.value)}
-                      />
-                      {p.label}
-                    </label>
-                  ))}
+        <div className="flex gap-2">
+          <AIFAQGenerator onSaved={fetchFaqs} />
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={openNew}><Plus className="mr-2 h-4 w-4" />Yeni Soru</Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-lg">
+              <DialogHeader>
+                <DialogTitle>{editId ? "Soruyu Düzenle" : "Yeni Soru Ekle"}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <Input placeholder="Soru" value={form.question} onChange={(e) => setForm({ ...form, question: e.target.value })} />
+                <Textarea placeholder="Cevap" rows={4} value={form.answer} onChange={(e) => setForm({ ...form, answer: e.target.value })} />
+                <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {categories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                <div>
+                  <p className="mb-2 text-sm font-medium">Sayfalar</p>
+                  <div className="space-y-2">
+                    {pages.map((p) => (
+                      <label key={p.value} className="flex items-center gap-2 text-sm">
+                        <Checkbox
+                          checked={form.page_assignments.includes(p.value)}
+                          onCheckedChange={() => togglePage(p.value)}
+                        />
+                        {p.label}
+                      </label>
+                    ))}
+                  </div>
                 </div>
+                <Button onClick={handleSave} className="w-full">Kaydet</Button>
               </div>
-              <Button onClick={handleSave} className="w-full">Kaydet</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {loading ? (
