@@ -12,7 +12,6 @@ const navLinks = [
   { label: "Toplantı Odası", href: "/toplanti-odasi-sakarya" },
   { label: "Blog", href: "/blog" },
   { label: "İletişim", href: "/iletisim" },
-  { label: "Yönetim", href: "/admin/login" },
 ];
 
 const Header = () => {
