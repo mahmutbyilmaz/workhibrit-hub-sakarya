@@ -101,6 +101,101 @@ export type Database = {
         }
         Relationships: []
       }
+      contract_templates: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_default: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      contracts: {
+        Row: {
+          address: string | null
+          company_name: string | null
+          contract_date: string
+          contract_duration: number
+          created_at: string
+          created_by: string | null
+          customer_name: string
+          email: string | null
+          end_date: string
+          id: string
+          monthly_price: number
+          notes: string | null
+          phone: string | null
+          rendered_content: string | null
+          start_date: string
+          status: string
+          template_id: string | null
+        }
+        Insert: {
+          address?: string | null
+          company_name?: string | null
+          contract_date?: string
+          contract_duration: number
+          created_at?: string
+          created_by?: string | null
+          customer_name: string
+          email?: string | null
+          end_date: string
+          id?: string
+          monthly_price: number
+          notes?: string | null
+          phone?: string | null
+          rendered_content?: string | null
+          start_date: string
+          status?: string
+          template_id?: string | null
+        }
+        Update: {
+          address?: string | null
+          company_name?: string | null
+          contract_date?: string
+          contract_duration?: number
+          created_at?: string
+          created_by?: string | null
+          customer_name?: string
+          email?: string | null
+          end_date?: string
+          id?: string
+          monthly_price?: number
+          notes?: string | null
+          phone?: string | null
+          rendered_content?: string | null
+          start_date?: string
+          status?: string
+          template_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "contract_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       faqs: {
         Row: {
           answer: string
