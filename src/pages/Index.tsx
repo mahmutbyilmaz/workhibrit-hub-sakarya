@@ -12,6 +12,26 @@ import { business, services as staticServices, testimonials as staticTestimonial
 import { supabase } from "@/integrations/supabase/client";
 import { useBusinessData } from "@/hooks/useBusinessData";
 
+const toEmbedUrl = (url: string): string => {
+  if (!url) return "";
+  // Already embed format
+  if (url.includes("/maps/embed")) return url;
+  // Extract coordinates from standard Google Maps link
+  const coordMatch = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+  if (coordMatch) {
+    const lat = coordMatch[1];
+    const lng = coordMatch[2];
+    return `https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d1500!2d${lng}!3d${lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1str!2str`;
+  }
+  // Extract place name for search query
+  const placeMatch = url.match(/\/place\/([^/@]+)/);
+  if (placeMatch) {
+    const query = decodeURIComponent(placeMatch[1].replace(/\+/g, " "));
+    return `https://www.google.com/maps/embed/v1/place?key=&q=${encodeURIComponent(query)}`;
+  }
+  return url;
+};
+
 const iconMap: Record<string, React.ReactNode> = {
   Building2: <Building2 className="h-8 w-8" />,
   Users: <Users className="h-8 w-8" />,
@@ -205,7 +225,7 @@ const Index = () => {
           <h2 className="mb-8 text-center font-display text-3xl font-bold">Konumumuz</h2>
           <div className="mx-auto max-w-4xl overflow-hidden rounded-lg border shadow-sm">
             <iframe
-              src={mapsEmbed}
+              src={toEmbedUrl(mapsEmbed)}
               width="100%"
               height="400"
               style={{ border: 0 }}
