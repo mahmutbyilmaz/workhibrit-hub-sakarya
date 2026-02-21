@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { format } from "date-fns";
-import { CalendarIcon, Plus, Trash2, Clock } from "lucide-react";
+import { CalendarIcon, Plus, Trash2, Clock, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -183,6 +183,25 @@ const AdminBlogEditor = () => {
     doSave("scheduled");
   };
 
+  const saveFaqsToTable = async () => {
+    if (faqs.length === 0) {
+      toast({ title: "Hata", description: "Kaydedilecek SSS bulunamadı.", variant: "destructive" });
+      return;
+    }
+    const rows = faqs.filter(f => f.q && f.a).map(f => ({
+      question: f.q,
+      answer: f.a,
+      category: form.category || "Genel",
+      status: "published" as const,
+    }));
+    const { error } = await supabase.from("faqs").insert(rows);
+    if (error) {
+      toast({ title: "Hata", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: `${rows.length} SSS başarıyla kaydedildi` });
+    }
+  };
+
   const toggleStatus = () => {
     const newStatus = form.status === "published" ? "draft" : "published";
     setForm((prev) => ({ ...prev, status: newStatus }));
@@ -255,7 +274,14 @@ const AdminBlogEditor = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base">SSS</CardTitle>
-              <Button variant="outline" size="sm" onClick={addFaq}><Plus className="mr-1 h-3 w-3" />Ekle</Button>
+              <div className="flex gap-2">
+                {faqs.length > 0 && (
+                  <Button variant="outline" size="sm" onClick={saveFaqsToTable}>
+                    <Save className="mr-1 h-3 w-3" />SSS Tablosuna Kaydet
+                  </Button>
+                )}
+                <Button variant="outline" size="sm" onClick={addFaq}><Plus className="mr-1 h-3 w-3" />Ekle</Button>
+              </div>
             </CardHeader>
             <CardContent className="space-y-3">
               {faqs.map((faq, i) => (
