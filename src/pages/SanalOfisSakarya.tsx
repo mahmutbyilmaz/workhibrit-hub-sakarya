@@ -4,6 +4,7 @@ import Layout from "@/components/Layout";
 import SEOHead from "@/components/SEOHead";
 import FAQSection from "@/components/FAQSection";
 import CTASection from "@/components/CTASection";
+import { ServiceSchema, BreadcrumbSchema } from "@/components/JsonLd";
 import { Button } from "@/components/ui/button";
 import { business } from "@/data/business";
 import { useBusinessData } from "@/hooks/useBusinessData";
@@ -31,6 +32,8 @@ const SanalOfisSakarya = () => {
 
   return (
   <Layout>
+    <ServiceSchema name="Sanal Ofis" description="Sakarya'da prestijli iş adresi, posta yönetimi ve şirket kuruluş desteği ile profesyonel sanal ofis hizmeti." url="/sanal-ofis-sakarya" />
+    <BreadcrumbSchema items={[{ name: "Ana Sayfa", url: "/" }, { name: "Sanal Ofis", url: "/sanal-ofis-sakarya" }]} />
     <SEOHead
       title="Sanal Ofis Sakarya | Sakarya Sanal Ofis"
       description="Sakarya'da sanal ofis hizmeti. Prestijli iş adresi, posta yönetimi ve şirket kuruluş desteği. Sakarya Sanal Ofis ile profesyonel sanal ofis çözümleri."

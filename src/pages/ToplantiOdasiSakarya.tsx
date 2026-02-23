@@ -4,6 +4,7 @@ import Layout from "@/components/Layout";
 import SEOHead from "@/components/SEOHead";
 import FAQSection from "@/components/FAQSection";
 import CTASection from "@/components/CTASection";
+import { ServiceSchema, BreadcrumbSchema } from "@/components/JsonLd";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useBusinessData } from "@/hooks/useBusinessData";
@@ -25,6 +26,8 @@ const ToplantiOdasiSakarya = () => {
 
   return (
   <Layout>
+    <ServiceSchema name="Toplantı Odası" description="Sakarya'da profesyonel kiralık toplantı odası. Video konferans, projeksiyon dahil." url="/toplanti-odasi-sakarya" />
+    <BreadcrumbSchema items={[{ name: "Ana Sayfa", url: "/" }, { name: "Toplantı Odası", url: "/toplanti-odasi-sakarya" }]} />
     <SEOHead
       title="Toplantı Odası Sakarya | Sakarya Sanal Ofis Kiralık Toplantı Odası"
       description="Sakarya'da kiralık toplantı odası. Profesyonel ekipman, video konferans imkanı. Sakarya Sanal Ofis toplantı odası saatlik ve günlük kiralama."

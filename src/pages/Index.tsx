@@ -27,7 +27,7 @@ const toEmbedUrl = (url: string): string => {
   const placeMatch = url.match(/\/place\/([^/@]+)/);
   if (placeMatch) {
     const query = decodeURIComponent(placeMatch[1].replace(/\+/g, " "));
-    return `https://www.google.com/maps/embed/v1/place?key=&q=${encodeURIComponent(query)}`;
+    return `https://www.google.com/maps?output=embed&q=${encodeURIComponent(query)}`;
   }
   return url;
 };

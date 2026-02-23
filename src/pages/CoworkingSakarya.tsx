@@ -4,6 +4,7 @@ import Layout from "@/components/Layout";
 import SEOHead from "@/components/SEOHead";
 import FAQSection from "@/components/FAQSection";
 import CTASection from "@/components/CTASection";
+import { ServiceSchema, BreadcrumbSchema } from "@/components/JsonLd";
 import { Button } from "@/components/ui/button";
 import { useBusinessData } from "@/hooks/useBusinessData";
 
@@ -25,6 +26,8 @@ const CoworkingSakarya = () => {
 
   return (
   <Layout>
+    <ServiceSchema name="Coworking Alan" description="Sakarya'da modern coworking ve ortak çalışma alanı. Yüksek hızlı internet, networking imkanı." url="/coworking-sakarya" />
+    <BreadcrumbSchema items={[{ name: "Ana Sayfa", url: "/" }, { name: "Coworking", url: "/coworking-sakarya" }]} />
     <SEOHead
       title="Coworking Sakarya | Sakarya Sanal Ofis Ortak Çalışma Alanı"
       description="Sakarya'da coworking ve ortak çalışma alanı. Modern, verimli çalışma ortamı. Sakarya Sanal Ofis coworking space Sakarya."
