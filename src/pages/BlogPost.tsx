@@ -18,7 +18,7 @@ const BlogPost = () => {
         .from("blog_posts")
         .select("*")
         .eq("slug", slug!)
-        .eq("status", "published")
+        .or("status.eq.published,and(status.eq.scheduled,scheduled_at.lte.now())")
         .maybeSingle();
       if (error) throw error;
       return data;
