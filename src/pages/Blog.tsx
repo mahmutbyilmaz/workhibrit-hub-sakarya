@@ -52,6 +52,8 @@ const Blog = () => {
                       <img
                         src={post.featured_image}
                         alt={post.title}
+                        width={400}
+                        height={192}
                         className="h-48 w-full rounded-t-lg object-cover"
                         loading="lazy"
                       />

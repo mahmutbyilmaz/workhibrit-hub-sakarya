@@ -1,9 +1,6 @@
 import { business } from "@/data/business";
 
-interface FAQItem {
-  q: string;
-  a: string;
-}
+interface FAQItem { q: string; a: string; }
 
 export const LocalBusinessSchema = () => {
   const schema = {
@@ -23,18 +20,8 @@ export const LocalBusinessSchema = () => {
       addressCountry: "TR",
     },
     openingHoursSpecification: [
-      {
-        "@type": "OpeningHoursSpecification",
-        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-        opens: "09:00",
-        closes: "18:00",
-      },
-      {
-        "@type": "OpeningHoursSpecification",
-        dayOfWeek: "Saturday",
-        opens: "09:00",
-        closes: "14:00",
-      },
+      { "@type": "OpeningHoursSpecification", dayOfWeek: ["Monday","Tuesday","Wednesday","Thursday","Friday"], opens: "09:00", closes: "18:00" },
+      { "@type": "OpeningHoursSpecification", dayOfWeek: "Saturday", opens: "09:00", closes: "14:00" },
     ],
   };
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
@@ -74,6 +61,48 @@ export const OrganizationSchema = () => {
     name: business.name,
     url: `https://${business.domain}`,
     contactPoint: { "@type": "ContactPoint", telephone: business.phone, contactType: "customer service" },
+  };
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
+};
+
+export const WebSiteSchema = () => {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: business.name,
+    url: `https://${business.domain}`,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `https://${business.domain}/blog?q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  };
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
+};
+
+export const ServiceSchema = ({ name, description, url }: { name: string; description: string; url: string }) => {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name,
+    description,
+    provider: { "@type": "LocalBusiness", name: business.name },
+    areaServed: { "@type": "City", name: "Sakarya" },
+    url: `https://${business.domain}${url}`,
+  };
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
+};
+
+export const BreadcrumbSchema = ({ items }: { items: { name: string; url: string }[] }) => {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: item.name,
+      item: `https://${business.domain}${item.url}`,
+    })),
   };
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
 };

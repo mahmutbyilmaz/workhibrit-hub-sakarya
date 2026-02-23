@@ -4,6 +4,7 @@ import Layout from "@/components/Layout";
 import SEOHead from "@/components/SEOHead";
 import FAQSection from "@/components/FAQSection";
 import CTASection from "@/components/CTASection";
+import { ServiceSchema, BreadcrumbSchema } from "@/components/JsonLd";
 import { Button } from "@/components/ui/button";
 import { useBusinessData } from "@/hooks/useBusinessData";
 
@@ -29,6 +30,8 @@ const HazirOfis = () => {
 
   return (
   <Layout>
+    <ServiceSchema name="Hazır Ofis" description="Sakarya'da tam donanımlı, kullanıma hazır özel ofis alanları kiralama." url="/hazir-ofis" />
+    <BreadcrumbSchema items={[{ name: "Ana Sayfa", url: "/" }, { name: "Hazır Ofis", url: "/hazir-ofis" }]} />
     <SEOHead
       title="Hazır Ofis Sakarya | Sakarya Sanal Ofis Kiralık Ofis"
       description="Sakarya'da hazır ofis kiralama. Tam donanımlı, kullanıma hazır özel ofis alanları. Sakarya Sanal Ofis ile hemen taşının."
