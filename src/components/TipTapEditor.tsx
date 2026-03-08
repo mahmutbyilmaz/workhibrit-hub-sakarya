@@ -71,8 +71,10 @@ const MenuBar = ({ editor }: { editor: any }) => {
       return;
     }
     const videoId = match[1];
-    const html = `<div class="video-wrapper"><iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
-    editor.chain().focus().insertContent(html).run();
+    editor.chain().focus().insertContent({
+      type: "iframe",
+      attrs: { src: `https://www.youtube.com/embed/${videoId}` },
+    }).run();
   };
 
   const items = [
