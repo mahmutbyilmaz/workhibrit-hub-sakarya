@@ -5,7 +5,7 @@ import Layout from "@/components/Layout";
 import SEOHead from "@/components/SEOHead";
 import FAQSection from "@/components/FAQSection";
 import CTASection from "@/components/CTASection";
-import { ArticleSchema } from "@/components/JsonLd";
+import { ArticleSchema, VideoObjectSchema } from "@/components/JsonLd";
 import { supabase } from "@/integrations/supabase/client";
 
 const BlogPost = () => {
@@ -67,6 +67,9 @@ const BlogPost = () => {
     ? (post.faqs as Array<{ q: string; a: string }>)
     : [];
 
+  const videoUrl = (post as any).video_url as string | null;
+  const videoId = videoUrl?.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/)?.[1];
+
   return (
     <Layout>
       <SEOHead
@@ -81,6 +84,15 @@ const BlogPost = () => {
         date={post.created_at}
         slug={post.slug}
       />
+      {videoId && (
+        <VideoObjectSchema
+          title={post.title}
+          description={post.meta_description || post.excerpt || ""}
+          thumbnailUrl={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
+          embedUrl={`https://www.youtube.com/embed/${videoId}`}
+          uploadDate={post.created_at}
+        />
+      )}
 
       <article>
         <section className="bg-primary py-16 text-primary-foreground">
@@ -103,6 +115,19 @@ const BlogPost = () => {
         {post.featured_image && (
           <div className="container max-w-3xl py-8">
             <img src={post.featured_image} alt={post.title} className="w-full rounded-lg object-cover" />
+          </div>
+        )}
+
+        {videoId && (
+          <div className="container max-w-3xl py-8">
+            <div className="video-wrapper">
+              <iframe
+                src={`https://www.youtube.com/embed/${videoId}`}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                title={post.title}
+              />
+            </div>
           </div>
         )}
 
