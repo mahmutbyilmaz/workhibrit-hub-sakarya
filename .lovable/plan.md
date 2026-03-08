@@ -1,33 +1,39 @@
 
+# Zamanlanmis Blog Yazilari Sorunu Cozumu
 
-# Blog YouTube Video Embed Sorunu - Çözüm Planı
+## Sorun
+Zamanlanmis blog yazilari, belirlenen tarih ve saat gectikten sonra bile `scheduled` durumunda kaliyor ve yayina gecmiyor. Iki farkli sorun var:
 
-## Sorunun Kaynağı
+1. **BlogPost.tsx**: Tekil yazi sayfasi sadece `status = "published"` filtreliyor. Zamani gecmis `scheduled` yazilar acildiginda "Yazi bulunamadi" gosteriliyor.
+2. **Otomatik durum guncelleme yok**: Veritabaninda yazilarin durumunu `scheduled` -> `published` olarak degistiren bir mekanizma bulunmuyor. Blog listesi sayfasi (Blog.tsx) bunu client-side `.or()` filtresiyle gecici olarak cozmus, ama asil cozum veritabani tarafinda olmali.
 
-TipTap editörü `iframe` ve `div` etiketlerini tanımıyor. `insertContent` ile eklenen `<div class="video-wrapper"><iframe ...></iframe></div>` HTML'i, TipTap'ın schema'sına uymadığı için **otomatik olarak sıyırılıyor** (stripped). Sonuçta sadece metin veya link kalıyor.
+## Veritabanindaki Mevcut Durum
+| Yazi | scheduled_at | status |
+|------|-------------|--------|
+| Girisimcinin Yeni Rotasi | 22 Subat 06:00 (gecmis!) | scheduled |
+| Sanal Ofiste Limited Sirket | 23 Subat 07:00 | scheduled |
 
-TipTap yalnızca kayıtlı extension'lara ait HTML etiketlerini kabul eder. `iframe` için özel bir extension tanımlanması gerekiyor.
+Her iki yazi da taslak gibi kaliyor cunku hicbir mekanizma durumu degistirmiyor.
 
-## Çözüm
+## Cozum Plani
 
-**Özel bir TipTap Iframe Node extension'ı** oluşturulacak. Bu sayede TipTap, `iframe` etiketini tanıyacak ve hem editörde hem de kaydedilen HTML'de iframe korunacak.
+### 1. Veritabani: Otomatik yayinlama fonksiyonu ve cron job
+Bir PostgreSQL fonksiyonu olusturulacak: zamani gecmis `scheduled` yazilarin durumunu otomatik olarak `published` olarak guncelleyecek. Bu fonksiyon `pg_cron` uzantisi veya bir Supabase cron ile periyodik olarak calisacak.
 
-### Değişecek Dosya
+SQL fonksiyonu:
+- `scheduled` durumundaki ve `scheduled_at <= now()` olan tum yazilarin statusunu `published` olarak gunceller
+- Her 5 dakikada bir calistirilir (pg_cron ile)
 
-**`src/components/TipTapEditor.tsx`**:
+### 2. BlogPost.tsx: Filtre guncelleme
+Tekil yazi sayfasindaki sorgu, RLS politikasina uyumlu hale getirilecek:
+- Mevcut: `.eq("status", "published")`
+- Yeni: `.or("status.eq.published,and(status.eq.scheduled,scheduled_at.lte.now())")` 
 
-1. Dosya içinde küçük bir custom `Iframe` Node extension tanımlanacak (ayrı dosya gereksiz):
-   - `group: 'block'`, `atom: true`
-   - `src`, `frameborder`, `allow`, `allowfullscreen` gibi attribute'ları parse/render edecek
-   - `parseHTML`: `iframe` etiketini tanıyacak
-   - `renderHTML`: `iframe` etiketini çıktı olarak üretecek
+Bu sayede cron job calismadan once bile zamani gecmis zamanlanmis yazilar goruntulenebilecek.
 
-2. Bu extension, `useEditor`'daki `extensions` listesine eklenecek
+### 3. Mevcut zamani gecmis yazilarin durumunu guncelleme
+Migrasyon icinde mevcut zamani gecmis scheduled yazilarin durumu hemen `published` olarak guncellenecek.
 
-3. `addYouTube` fonksiyonu, `insertContent` yerine doğrudan iframe node'u ekleyecek şekilde güncellenecek. Alternatif olarak raw HTML insert ile de çalışacak çünkü artık schema iframe'i tanıyacak.
-
-Bu değişiklik sonrasında:
-- Editörde YouTube videoları embed olarak görünecek
-- Kaydedilen HTML'de iframe korunacak
-- `BlogPost.tsx`'deki `dangerouslySetInnerHTML` zaten iframe'leri doğru render ediyor, orada değişiklik gerekmez
-
+## Degisecek Dosyalar
+1. **Veritabani migrasyonu** (yeni) - `publish_scheduled_posts` fonksiyonu, cron job ve mevcut veri guncelleme
+2. **`src/pages/BlogPost.tsx`** - Tekil yazi sorgusundaki filtre duzeltmesi

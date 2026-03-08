@@ -7,6 +7,31 @@ import TableRow from "@tiptap/extension-table-row";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import Placeholder from "@tiptap/extension-placeholder";
+import { Node, mergeAttributes } from "@tiptap/core";
+
+const Iframe = Node.create({
+  name: "iframe",
+  group: "block",
+  atom: true,
+  addAttributes() {
+    return {
+      src: { default: null },
+      frameborder: { default: "0" },
+      allow: { default: "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" },
+      allowfullscreen: { default: "true" },
+      width: { default: "100%" },
+      height: { default: "400" },
+    };
+  },
+  parseHTML() {
+    return [{ tag: "iframe" }];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ["div", { class: "video-wrapper", style: "position:relative;padding-bottom:56.25%;height:0;overflow:hidden;" },
+      ["iframe", mergeAttributes(HTMLAttributes, { style: "position:absolute;top:0;left:0;width:100%;height:100%;" })]
+    ];
+  },
+});
 import {
   Bold, Italic, Heading1, Heading2, Heading3,
   List, ListOrdered, Quote, Link as LinkIcon,
@@ -46,8 +71,10 @@ const MenuBar = ({ editor }: { editor: any }) => {
       return;
     }
     const videoId = match[1];
-    const html = `<div class="video-wrapper"><iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
-    editor.chain().focus().insertContent(html).run();
+    editor.chain().focus().insertContent({
+      type: "iframe",
+      attrs: { src: `https://www.youtube.com/embed/${videoId}` },
+    }).run();
   };
 
   const items = [
@@ -91,6 +118,7 @@ const TipTapEditor = ({ content, onChange }: TipTapEditorProps) => {
       StarterKit,
       Link.configure({ openOnClick: false }),
       Image,
+      Iframe,
       Table.configure({ resizable: true }),
       TableRow,
       TableCell,
