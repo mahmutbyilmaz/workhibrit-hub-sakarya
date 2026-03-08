@@ -118,6 +118,7 @@ const TipTapEditor = ({ content, onChange }: TipTapEditorProps) => {
       StarterKit,
       Link.configure({ openOnClick: false }),
       Image,
+      Iframe,
       Table.configure({ resizable: true }),
       TableRow,
       TableCell,
