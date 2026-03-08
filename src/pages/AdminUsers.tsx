@@ -52,8 +52,22 @@ const AdminUsers = () => {
   useEffect(() => { fetchUsers(); }, []);
 
   const handleCreate = async () => {
+    const email = newEmail.trim();
+    const password = newPassword.trim();
+    if (!email || !password) {
+      toast({ title: "Hata", description: "E-posta ve şifre gereklidir.", variant: "destructive" });
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast({ title: "Hata", description: "Geçerli bir e-posta adresi girin.", variant: "destructive" });
+      return;
+    }
+    if (password.length < 6) {
+      toast({ title: "Hata", description: "Şifre en az 6 karakter olmalıdır.", variant: "destructive" });
+      return;
+    }
     try {
-      await callApi({ action: "create", email: newEmail, password: newPassword, role: newRole });
+      await callApi({ action: "create", email, password, role: newRole });
       toast({ title: "Kullanıcı oluşturuldu" });
       setCreateOpen(false);
       setNewEmail("");
