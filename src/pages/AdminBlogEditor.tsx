@@ -45,6 +45,7 @@ const AdminBlogEditor = () => {
     category: "Sanal Ofis",
     status: "draft",
     featured_image: "",
+    video_url: "",
   });
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [saving, setSaving] = useState(false);
@@ -72,6 +73,7 @@ const AdminBlogEditor = () => {
               category: data.category || "Sanal Ofis",
               status: data.status || "draft",
               featured_image: data.featured_image || "",
+              video_url: (data as any).video_url || "",
             });
             setFaqs(Array.isArray(data.faqs) ? (data.faqs as unknown as FAQ[]) : []);
             if ((data as any).scheduled_at) {
@@ -117,6 +119,7 @@ const AdminBlogEditor = () => {
       category: result.category || "Sanal Ofis",
       status: "draft",
       featured_image: "",
+      video_url: "",
     });
     if (result.faqs) {
       setFaqs(result.faqs);
@@ -145,6 +148,7 @@ const AdminBlogEditor = () => {
       category: form.category,
       status: finalStatus,
       featured_image: form.featured_image,
+      video_url: form.video_url || null,
       faqs: faqs as any,
       author_id: user?.id,
       scheduled_at: finalStatus === "scheduled" ? getScheduledAt() : null,
