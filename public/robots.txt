@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://sakaryasanalofis.com/sitemap.xml
+Sitemap: https://lxgcseulhfdlkpskaxfq.supabase.co/functions/v1/generate-sitemap

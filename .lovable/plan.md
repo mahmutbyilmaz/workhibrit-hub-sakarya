@@ -1,55 +1,39 @@
 
+# Zamanlanmis Blog Yazilari Sorunu Cozumu
 
-# Google Hizli Indeksleme ve Blog YouTube Video Destegi
+## Sorun
+Zamanlanmis blog yazilari, belirlenen tarih ve saat gectikten sonra bile `scheduled` durumunda kaliyor ve yayina gecmiyor. Iki farkli sorun var:
 
-## 1. Google Hizli Indeksleme Icin Yapilacaklar
+1. **BlogPost.tsx**: Tekil yazi sayfasi sadece `status = "published"` filtreliyor. Zamani gecmis `scheduled` yazilar acildiginda "Yazi bulunamadi" gosteriliyor.
+2. **Otomatik durum guncelleme yok**: Veritabaninda yazilarin durumunu `scheduled` -> `published` olarak degistiren bir mekanizma bulunmuyor. Blog listesi sayfasi (Blog.tsx) bunu client-side `.or()` filtresiyle gecici olarak cozmus, ama asil cozum veritabani tarafinda olmali.
 
-### IndexNow API Entegrasyonu
-IndexNow, Google ve Bing'e yeni/guncellenen sayfayi aninda bildiren bir protokol. Blog yazisi yayinlandiginda otomatik olarak arama motorlarina bildirim gonderilecek.
+## Veritabanindaki Mevcut Durum
+| Yazi | scheduled_at | status |
+|------|-------------|--------|
+| Girisimcinin Yeni Rotasi | 22 Subat 06:00 (gecmis!) | scheduled |
+| Sanal Ofiste Limited Sirket | 23 Subat 07:00 | scheduled |
 
-- **Edge function** olusturulacak: `notify-indexnow`
-- Blog yazisi `published` durumuna gectiginde bu fonksiyon cagirilacak
-- IndexNow API key dosyasi `public/` klasorune eklenecek
+Her iki yazi da taslak gibi kaliyor cunku hicbir mekanizma durumu degistirmiyor.
 
-### Dinamik Sitemap
-Mevcut `sitemap.xml` statik. Blog yazilari eklendikce guncellenmesi gerekiyor.
-- Bir edge function olusturulacak: `generate-sitemap`
-- Veritabanindaki tum yayinlanmis blog yazilari + statik sayfalar dahil edilecek
-- `lastmod` tarihleri eklenecek
+## Cozum Plani
 
-### Blog Yazilarinda VideoObject Schema
-YouTube video eklenen bloglarda `VideoObject` schema markup otomatik eklenecek. Bu Google Video aramasinda gorunmeyi saglar.
+### 1. Veritabani: Otomatik yayinlama fonksiyonu ve cron job
+Bir PostgreSQL fonksiyonu olusturulacak: zamani gecmis `scheduled` yazilarin durumunu otomatik olarak `published` olarak guncelleyecek. Bu fonksiyon `pg_cron` uzantisi veya bir Supabase cron ile periyodik olarak calisacak.
 
----
+SQL fonksiyonu:
+- `scheduled` durumundaki ve `scheduled_at <= now()` olan tum yazilarin statusunu `published` olarak gunceller
+- Her 5 dakikada bir calistirilir (pg_cron ile)
 
-## 2. YouTube Video Destegi
+### 2. BlogPost.tsx: Filtre guncelleme
+Tekil yazi sayfasindaki sorgu, RLS politikasina uyumlu hale getirilecek:
+- Mevcut: `.eq("status", "published")`
+- Yeni: `.or("status.eq.published,and(status.eq.scheduled,scheduled_at.lte.now())")` 
 
-### TipTap Editore YouTube Butonu
-- TipTap editorune YouTube ikonu ile yeni bir buton eklenecek
-- Kullanici YouTube linkini yapistirdiginda otomatik olarak responsive iframe embed koduna donusturulecek
-- TipTap `@tiptap/extension-youtube` yerine basit bir custom node veya `iframe` extension kullanilacak (ek paket gerektirmemesi icin HTML iframe olarak eklenecek)
+Bu sayede cron job calismadan once bile zamani gecmis zamanlanmis yazilar goruntulenebilecek.
 
-### BlogPost.tsx'de Video Gosterimi
-- `dangerouslySetInnerHTML` zaten iframe'leri render edebilir
-- CSS ile iframe'lerin responsive gorunmesi saglanacak (`aspect-ratio: 16/9`, `max-width: 100%`)
-
-### Admin Blog Editoru
-- Ayrica sidebar'a "YouTube Video URL" alani eklenecek (opsiyonel)
-- Bu alan `blog_posts` tablosuna `video_url` kolonu olarak eklenecek
-- Video varsa blog yazisinin basinda otomatik olarak gosterilecek
-- Video varsa `VideoObject` schema da otomatik eklenecek
-
----
+### 3. Mevcut zamani gecmis yazilarin durumunu guncelleme
+Migrasyon icinde mevcut zamani gecmis scheduled yazilarin durumu hemen `published` olarak guncellenecek.
 
 ## Degisecek Dosyalar
-
-1. **Veritabani migrasyonu** - `blog_posts` tablosuna `video_url` kolonu eklenmesi
-2. **`src/components/TipTapEditor.tsx`** - YouTube embed butonu eklenmesi
-3. **`src/pages/BlogPost.tsx`** - Video gosterimi, responsive iframe CSS, VideoObject schema
-4. **`src/pages/AdminBlogEditor.tsx`** - YouTube Video URL alani (sidebar'da)
-5. **`src/components/JsonLd.tsx`** - `VideoObjectSchema` komponenti
-6. **`src/index.css`** - Prose icindeki iframe'ler icin responsive stiller
-7. **`supabase/functions/generate-sitemap/index.ts`** (yeni) - Dinamik sitemap
-8. **`supabase/functions/notify-indexnow/index.ts`** (yeni) - IndexNow bildirimi
-9. **`public/sitemap.xml`** - Kaldirilacak (dinamik sitemap ile degistirilecek)
-
+1. **Veritabani migrasyonu** (yeni) - `publish_scheduled_posts` fonksiyonu, cron job ve mevcut veri guncelleme
+2. **`src/pages/BlogPost.tsx`** - Tekil yazi sorgusundaki filtre duzeltmesi

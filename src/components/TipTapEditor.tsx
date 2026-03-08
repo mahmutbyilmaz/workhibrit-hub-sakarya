@@ -10,7 +10,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import {
   Bold, Italic, Heading1, Heading2, Heading3,
   List, ListOrdered, Quote, Link as LinkIcon,
-  Image as ImageIcon, Table as TableIcon, Undo, Redo,
+  Image as ImageIcon, Table as TableIcon, Undo, Redo, Youtube,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
@@ -37,6 +37,19 @@ const MenuBar = ({ editor }: { editor: any }) => {
     editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
   };
 
+  const addYouTube = () => {
+    const url = prompt("YouTube Video URL:");
+    if (!url) return;
+    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/);
+    if (!match) {
+      alert("Geçersiz YouTube URL'si");
+      return;
+    }
+    const videoId = match[1];
+    const html = `<div class="video-wrapper"><iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+    editor.chain().focus().insertContent(html).run();
+  };
+
   const items = [
     { icon: Bold, action: () => editor.chain().focus().toggleBold().run(), active: editor.isActive("bold") },
     { icon: Italic, action: () => editor.chain().focus().toggleItalic().run(), active: editor.isActive("italic") },
@@ -48,6 +61,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
     { icon: Quote, action: () => editor.chain().focus().toggleBlockquote().run(), active: editor.isActive("blockquote") },
     { icon: LinkIcon, action: addLink, active: editor.isActive("link") },
     { icon: ImageIcon, action: addImage, active: false },
+    { icon: Youtube, action: addYouTube, active: false },
     { icon: TableIcon, action: addTable, active: false },
     { icon: Undo, action: () => editor.chain().focus().undo().run(), active: false },
     { icon: Redo, action: () => editor.chain().focus().redo().run(), active: false },
