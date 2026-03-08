@@ -31,6 +31,7 @@ import AdminAbout from "./pages/AdminAbout";
 import AdminContracts from "./pages/AdminContracts";
 import AdminContractNew from "./pages/AdminContractNew";
 import AdminContractTemplates from "./pages/AdminContractTemplates";
+import AdminUsers from "./pages/AdminUsers";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +71,7 @@ const App = () => (
             <Route path="/admin/contracts" element={<ProtectedRoute><AdminContracts /></ProtectedRoute>} />
             <Route path="/admin/contracts/new" element={<ProtectedRoute><AdminContractNew /></ProtectedRoute>} />
             <Route path="/admin/contracts/templates" element={<ProtectedRoute><AdminContractTemplates /></ProtectedRoute>} />
+            <Route path="/admin/users" element={<ProtectedRoute requiredRole="admin"><AdminUsers /></ProtectedRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
