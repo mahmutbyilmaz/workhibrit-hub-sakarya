@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Plus, Trash2, Key, Shield } from "lucide-react";
+import { Plus, Trash2, Key, Shield, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,6 +29,8 @@ const AdminUsers = () => {
   const [newPassword, setNewPassword] = useState("");
   const [newRole, setNewRole] = useState<string>("editor");
   const [changePassword, setChangePassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
   const { toast } = useToast();
   const { user: currentUser } = useAuth();
 
@@ -133,7 +135,12 @@ const AdminUsers = () => {
             </DialogHeader>
             <div className="space-y-4">
               <Input placeholder="E-posta" type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} />
-              <Input placeholder="Şifre (min. 6 karakter)" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+              <div className="relative">
+                <Input placeholder="Şifre (min. 6 karakter)" type={showNewPassword ? "text" : "password"} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="pr-10" />
+                <Button type="button" variant="ghost" size="icon" className="absolute right-0 top-0 h-10 w-10" onClick={() => setShowNewPassword(!showNewPassword)}>
+                  {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
               <Select value={newRole} onValueChange={setNewRole}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -156,7 +163,12 @@ const AdminUsers = () => {
             <DialogTitle>Şifre Değiştir — {selectedUser?.email}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <Input placeholder="Yeni şifre (min. 6 karakter)" type="password" value={changePassword} onChange={(e) => setChangePassword(e.target.value)} />
+            <div className="relative">
+              <Input placeholder="Yeni şifre (min. 6 karakter)" type={showChangePassword ? "text" : "password"} value={changePassword} onChange={(e) => setChangePassword(e.target.value)} className="pr-10" />
+              <Button type="button" variant="ghost" size="icon" className="absolute right-0 top-0 h-10 w-10" onClick={() => setShowChangePassword(!showChangePassword)}>
+                {showChangePassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </Button>
+            </div>
             <Button onClick={handlePasswordChange} className="w-full" disabled={changePassword.length < 6}>
               Şifreyi Güncelle
             </Button>
