@@ -167,6 +167,12 @@ const AdminBlogEditor = () => {
     } else {
       if (statusOverride) setForm((prev) => ({ ...prev, status: statusOverride }));
       toast({ title: isNew ? "Yazı oluşturuldu" : "Yazı güncellendi" });
+      // Notify IndexNow when publishing
+      if (finalStatus === "published" && form.slug) {
+        supabase.functions.invoke("notify-indexnow", {
+          body: { urls: [`/blog/${form.slug}`] },
+        }).catch(() => {});
+      }
       navigate("/admin/blog");
     }
   };
