@@ -106,3 +106,19 @@ export const BreadcrumbSchema = ({ items }: { items: { name: string; url: string
   };
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
 };
+
+export const VideoObjectSchema = ({ title, description, thumbnailUrl, embedUrl, uploadDate }: {
+  title: string; description: string; thumbnailUrl: string; embedUrl: string; uploadDate: string;
+}) => {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    name: title,
+    description,
+    thumbnailUrl,
+    embedUrl,
+    uploadDate,
+    publisher: { "@type": "Organization", name: business.name },
+  };
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
+};

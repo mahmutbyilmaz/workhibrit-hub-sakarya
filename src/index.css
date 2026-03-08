@@ -90,3 +90,22 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
   }
 }
+
+@layer components {
+  .prose iframe,
+  .prose .video-wrapper iframe {
+    @apply w-full rounded-lg;
+    aspect-ratio: 16 / 9;
+    max-width: 100%;
+    height: auto;
+  }
+
+  .video-wrapper {
+    @apply relative w-full overflow-hidden rounded-lg;
+    aspect-ratio: 16 / 9;
+  }
+
+  .video-wrapper iframe {
+    @apply absolute inset-0 h-full w-full;
+  }
+}
