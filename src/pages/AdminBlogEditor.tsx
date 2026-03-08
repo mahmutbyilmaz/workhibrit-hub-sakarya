@@ -326,6 +326,7 @@ const AdminBlogEditor = () => {
                 </SelectContent>
               </Select>
               <Input placeholder="Öne Çıkan Görsel URL" value={form.featured_image} onChange={(e) => handleChange("featured_image", e.target.value)} />
+              <Input placeholder="YouTube Video URL (opsiyonel)" value={form.video_url} onChange={(e) => handleChange("video_url", e.target.value)} />
             </CardContent>
           </Card>
           <Card>
